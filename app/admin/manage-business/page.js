@@ -76,16 +76,10 @@ export default function ManageBusinessPage() {
     };
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const isLoggedIn = localStorage.getItem("isLoggedIn");
-            if (isLoggedIn !== "true") {
-                router.push("/");
-                return;
-            }
-            syncBusinesses();
-            fetchCategories();
-            setLoading(false);
-        }
+        // middleware handles route protection
+        syncBusinesses();
+        fetchCategories();
+        setLoading(false);
 
         const handleClickOutside = (e) => {
             if (!e.target.closest('#country-container')) setShowCountrySuggestions(false);

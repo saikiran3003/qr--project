@@ -30,8 +30,7 @@ export default function LoginPage() {
 
             if (res.ok) {
                 if (typeof window !== "undefined") {
-                    localStorage.setItem("isLoggedIn", "true");
-                    localStorage.setItem("token", data.token);
+                    sessionStorage.setItem("isLoggedIn", "true");
                     Swal.fire({
                         title: "Login Successful",
                         icon: "success",

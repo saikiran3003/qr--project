@@ -13,6 +13,13 @@ export default function Sidebar() {
 
     useEffect(() => {
         if (typeof window !== "undefined") {
+            // Client-side protection fallback (using sessionStorage for tab-close auto-logout)
+            const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+            if (isLoggedIn !== "true" && pathname !== "/admin" && pathname !== "/admin/signup") {
+                router.push("/admin");
+                return;
+            }
+
             const saved = localStorage.getItem("categories");
             if (saved) {
                 setCategories(JSON.parse(saved));
@@ -28,7 +35,7 @@ export default function Sidebar() {
             window.addEventListener("categoriesUpdated", handleUpdate);
             return () => window.removeEventListener("categoriesUpdated", handleUpdate);
         }
-    }, []);
+    }, [pathname, router]);
 
     const handleAddCategory = async (e) => {
         e.stopPropagation();
@@ -67,7 +74,7 @@ export default function Sidebar() {
                     timer: 2000,
                     timerProgressBar: true
                 }).then(() => {
-                    localStorage.removeItem("isLoggedIn");
+                    sessionStorage.removeItem("isLoggedIn");
                     localStorage.removeItem("token");
                     router.push("/admin");
                 });

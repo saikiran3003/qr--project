@@ -26,20 +26,13 @@ export default function CategoriesPage() {
     };
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const isLoggedIn = localStorage.getItem("isLoggedIn");
-            if (isLoggedIn !== "true") {
-                router.push("/");
-                return;
-            }
+        // middleware handles route protection
+        syncCategories();
+        setLoading(false);
 
-            syncCategories();
-            setLoading(false);
-
-            window.addEventListener("categoriesUpdated", syncCategories);
-            return () => window.removeEventListener("categoriesUpdated", syncCategories);
-        }
-    }, [router]);
+        window.addEventListener("categoriesUpdated", syncCategories);
+        return () => window.removeEventListener("categoriesUpdated", syncCategories);
+    }, []);
 
     const handleAddCategory = () => {
         Swal.fire({

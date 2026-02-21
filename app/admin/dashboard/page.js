@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from   "../../components/Sidebar";
+import Sidebar from "../../components/Sidebar";
 import {
     FolderTree,
     Eye,
@@ -29,20 +29,13 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const isLoggedIn = localStorage.getItem("isLoggedIn");
-            if (isLoggedIn !== "true") {
-                router.push("/");
-                return;
-            }
+        // middleware handles route protection
+        syncCategories();
+        setLoading(false);
 
-            syncCategories();
-            setLoading(false);
-
-            window.addEventListener("categoriesUpdated", syncCategories);
-            return () => window.removeEventListener("categoriesUpdated", syncCategories);
-        }
-    }, [router]);
+        window.addEventListener("categoriesUpdated", syncCategories);
+        return () => window.removeEventListener("categoriesUpdated", syncCategories);
+    }, []);
 
     if (loading) return null;
 

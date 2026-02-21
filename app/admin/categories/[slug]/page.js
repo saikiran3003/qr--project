@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Search, Plus, Edit, Trash2, ChevronLeft, Image as ImageIcon } from "lucide-react";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../../components/Sidebar";
 import Swal from "sweetalert2";
 
 export default function DynamicCategoryPage() {
@@ -45,15 +45,9 @@ export default function DynamicCategoryPage() {
     };
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const isLoggedIn = localStorage.getItem("isLoggedIn");
-            if (isLoggedIn !== "true") {
-                router.push("/");
-                return;
-            }
-            fetchData();
-        }
-    }, [router, slug]);
+        // middleware handles route protection
+        fetchData();
+    }, [slug]);
 
     const handleAddItem = () => {
         Swal.fire({
