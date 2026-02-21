@@ -13,12 +13,8 @@ export default function LoginPage() {
     const router = useRouter();
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const isLoggedIn = localStorage.getItem("isLoggedIn");
-            if (isLoggedIn === "true") {
-                router.push("/admin/dashboard");
-            }
-        }
+        // Since middleware handles protection, we just check if we should clear local state
+        // or if we're already logged in (optional UI check)
     }, [router]);
 
     const handleLogin = async (e) => {

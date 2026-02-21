@@ -52,19 +52,28 @@ export default function Sidebar() {
         }
     };
 
-    const handleLogout = () => {
-        if (typeof window !== "undefined") {
-            Swal.fire({
-                title: "Logout Successful",
-                icon: "success",
-                confirmButtonText: "OK",
-                confirmButtonColor: "#ef4444",
-                timer: 2000,
-                timerProgressBar: true
-            }).then(() => {
-                localStorage.removeItem("isLoggedIn");
-                router.push("/admin");
+    const handleLogout = async () => {
+        try {
+            const res = await fetch("/api/admin/logout", {
+                method: "POST",
             });
+
+            if (res.ok) {
+                Swal.fire({
+                    title: "Logout Successful",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                    confirmButtonColor: "#ef4444",
+                    timer: 2000,
+                    timerProgressBar: true
+                }).then(() => {
+                    localStorage.removeItem("isLoggedIn");
+                    localStorage.removeItem("token");
+                    router.push("/admin");
+                });
+            }
+        } catch (error) {
+            console.error("Logout failed:", error);
         }
     };
 

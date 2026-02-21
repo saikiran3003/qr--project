@@ -23,7 +23,17 @@ export async function POST(req) {
             expiresIn: '1d',
         });
 
-        return NextResponse.json({ token, message: 'Login successful' }, { status: 200 });
+        const response = NextResponse.json({ token, message: 'Login successful' }, { status: 200 });
+
+        // Set HTTP-only session cookie (expires when browser closes)
+        response.cookies.set('admin_session', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+        });
+
+        return response;
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
