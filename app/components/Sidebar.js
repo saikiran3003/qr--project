@@ -89,7 +89,7 @@ export default function Sidebar() {
     ];
 
     return (
-        <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-100 flex flex-col shadow-sm z-50">
+        <div className="fixed left-0 top-0 h-[100dvh] w-64 bg-white border-r border-gray-100 flex flex-col shadow-sm z-50">
             <div className="p-6 border-b border-gray-50 flex items-center space-x-3">
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                     <ShieldCheck className="text-white" size={20} />
@@ -97,7 +97,7 @@ export default function Sidebar() {
                 <h2 className="text-xl font-bold text-gray-800">Admin Panel</h2>
             </div>
 
-            <nav className="flex-1 p-4 space-y-2 mt-4 overflow-y-auto">
+            <nav className="p-4 space-y-2 mt-4">
                 {menuItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
@@ -143,7 +143,7 @@ export default function Sidebar() {
                 </div>
             </nav>
 
-            <div className="p-4 border-t border-gray-50">
+            <div className="mt-auto p-4 border-t border-gray-50">
                 <button
                     onClick={handleLogout}
                     className="flex items-center space-x-3 w-full px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all duration-200"

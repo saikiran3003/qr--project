@@ -7,8 +7,11 @@
   --background-end-rgb: 243, 244, 246;
 }
 
+html,
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
   min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
 }

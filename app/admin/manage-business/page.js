@@ -244,8 +244,22 @@ export default function ManageBusinessPage() {
         setErrors({});
     };
 
-    const handleViewBusiness = (business) => {
+    const handleViewBusiness = async (business) => {
         setViewBusiness(business);
+        try {
+            const res = await fetch(`/api/business/${business._id}/view`, {
+                method: "POST",
+            });
+            if (res.ok) {
+                const data = await res.json();
+                // Update local state to show incremented views immediately
+                setBusinesses(prev => prev.map(b =>
+                    b._id === business._id ? { ...b, views: data.views } : b
+                ));
+            }
+        } catch (error) {
+            console.error("Failed to increment views:", error);
+        }
     };
 
     const handleDeleteBusiness = (id) => {
@@ -292,468 +306,471 @@ export default function ManageBusinessPage() {
     });
 
     return (
-        <div className="flex min-h-screen bg-gray-50 relative">
+        <div className="flex min-h-screen bg-gray-50 overflow-x-hidden relative">
             <Sidebar />
 
-            <main className="flex-1 ml-64 p-10">
-                {!isFormOpen ? (
-                    <>
-                        <header className="flex flex-col mb-10">
-                            <Link
-                                href="/admin/categories"
-                                className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors mb-4 group w-fit"
-                            >
-                                <ChevronLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
-                                <span className="font-semibold text-sm">Back</span>
-                            </Link>
-                            <h1 className="text-3xl font-bold text-gray-800">Manage Business</h1>
-                            <p className="text-gray-500 mt-1">Manage your business entities here.</p>
-                        </header>
-
-                        <div className="mb-6 flex space-x-4 items-center">
-                            <div className="relative w-[300px]">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                <input
-                                    type="text"
-                                    placeholder="Search business..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-gray-600 font-medium"
-                                />
-                            </div>
-                            <div className="relative">
-                                <select
-                                    value={selectedCategory}
-                                    onChange={(e) => setSelectedCategory(e.target.value)}
-                                    className="px-6 py-3 bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-gray-600 font-bold cursor-pointer appearance-none min-w-[200px]"
+            <main className="flex-1 ml-64 p-10 min-w-0">
+                <div className="max-w-[1600px] mx-auto w-full">
+                    {!isFormOpen ? (
+                        <>
+                            <header className="flex flex-col mb-10">
+                                <Link
+                                    href="/admin/categories"
+                                    className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors mb-4 group w-fit"
                                 >
-                                    <option value="">All Categories</option>
-                                    {categories.map(cat => (
-                                        <option key={cat._id} value={cat._id}>{cat.name}</option>
-                                    ))}
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                    <ChevronDown size={18} />
-                                </div>
-                            </div>
-                            <button
-                                onClick={handleAddBusiness}
-                                className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 h-[50px] whitespace-nowrap"
-                            >
-                                <Plus size={20} />
-                                <span>Add New</span>
-                            </button>
-                        </div>
+                                    <ChevronLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+                                    <span className="font-semibold text-sm">Back</span>
+                                </Link>
+                                <h1 className="text-3xl font-bold text-gray-800">Manage Business</h1>
+                                <p className="text-gray-500 mt-1">Manage your business entities here.</p>
+                            </header>
 
-                        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-gray-50 border-b border-gray-100">
-                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">ID</th>
-                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Image</th>
-                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Business Name</th>
-                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Username</th>
-                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Category</th>
-                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Phone</th>
-                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Status</th>
-                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-50">
-                                        {filteredBusinesses.length > 0 ? (
-                                            filteredBusinesses.map((biz, index) => (
-                                                <tr key={biz._id} className="hover:bg-gray-50 transition-colors">
-                                                    <td className="px-6 py-4 text-gray-700 font-medium text-center">{index + 1}</td>
-                                                    <td className="px-6 py-4 text-center">
-                                                        <div
-                                                            onClick={() => setPreviewImageUrl(biz.logo)}
-                                                            className="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 mx-auto bg-gray-50 cursor-zoom-in group"
-                                                        >
-                                                            {biz.logo ? (
-                                                                <img src={biz.logo} alt={biz.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                                                    <Upload size={14} />
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-gray-700 font-bold whitespace-nowrap">{biz.name}</td>
-                                                    <td className="px-6 py-4 text-gray-500 font-medium">{biz.userName || 'N/A'}</td>
-                                                    <td className="px-6 py-4 text-gray-500 font-medium">{biz.category?.name || 'N/A'}</td>
-                                                    <td className="px-6 py-4 text-gray-500 font-medium">{biz.mobileNumber || biz.phoneNumber || 'N/A'}</td>
-                                                    <td className="px-6 py-4 text-center">
-                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${biz.status !== false ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
-                                                            {biz.status !== false ? 'Active' : 'Inactive'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center justify-center space-x-2">
-                                                            <button
-                                                                onClick={() => handleViewBusiness(biz)}
-                                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                                title="View Details"
-                                                            >
-                                                                <Eye size={18} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleEditBusiness(biz)}
-                                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                                title="Edit"
-                                                            >
-                                                                <Edit size={18} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDeleteBusiness(biz._id)}
-                                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                                title="Delete"
-                                                            >
-                                                                <Trash2 size={18} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="8" className="px-6 py-10 text-center text-gray-500 font-medium">
-                                                    No businesses found matching your search.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    </>
-                ) : (
-                    <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-20 animate-in fade-in slide-in-from-bottom-5 duration-300">
-                        <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-white">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-800">{editBusinessId ? 'Edit Business' : 'Add New Business'}</h2>
-                                <p className="text-gray-500 mt-1">{editBusinessId ? 'Update business information.' : 'Fill in the details to create a new business.'}</p>
-                            </div>
-                            <button
-                                onClick={resetForm}
-                                className="p-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-400"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Business Name */}
-                                <div className="md:col-span-1">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Business Name <span className="text-red-500 ml-1">*</span>
-                                    </label>
+                            <div className="mb-6 flex space-x-4 items-center">
+                                <div className="relative w-[300px]">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                                     <input
-                                        id="name"
                                         type="text"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-4 py-3 bg-gray-50 border ${errors.name ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium`}
-                                        placeholder="e.g. Starbucks"
+                                        placeholder="Search business..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-gray-600 font-medium"
                                     />
-                                    {errors.name && <p className="text-red-500 text-xs mt-2 font-semibold">{errors.name}</p>}
                                 </div>
-
-                                {/* Username */}
-                                <div className="md:col-span-1">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Username <span className="text-red-500 ml-1">*</span>
-                                    </label>
-                                    <input
-                                        id="userName"
-                                        type="text"
-                                        value={formData.userName}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-4 py-3 bg-gray-50 border ${errors.userName ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium`}
-                                        placeholder="e.g. starbucks123"
-                                    />
-                                    {errors.userName && <p className="text-red-500 text-xs mt-2 font-semibold">{errors.userName}</p>}
-                                </div>
-
-                                {/* Mobile Number */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Mobile Number <span className="text-red-500 ml-1">*</span>
-                                    </label>
-                                    <div className={`flex items-center bg-gray-50 border ${errors.mobileNumber ? 'border-red-500' : 'border-gray-100'} rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20 transition-all`}>
-                                        <select
-                                            id="countryCode"
-                                            value={formData.countryCode}
-                                            onChange={handleInputChange}
-                                            className="bg-transparent pl-4 pr-1 py-3 text-sm font-bold text-gray-600 focus:outline-none cursor-pointer border-r border-gray-100"
-                                        >
-                                            <option value="+91">+91 (IN)</option>
-                                            <option value="+1">+1 (US)</option>
-                                            <option value="+44">+44 (UK)</option>
-                                            <option value="+971">+971 (UAE)</option>
-                                            <option value="+61">+61 (AU)</option>
-                                            <option value="+81">+81 (JP)</option>
-                                            <option value="+49">+49 (DE)</option>
-                                            <option value="+33">+33 (FR)</option>
-                                            <option value="+7">+7 (RU)</option>
-                                            <option value="+86">+86 (CN)</option>
-                                        </select>
-                                        <input
-                                            id="mobileNumber"
-                                            type="text"
-                                            value={formData.mobileNumber}
-                                            onChange={handleInputChange}
-                                            className="flex-1 px-4 py-3 bg-transparent focus:outline-none font-medium"
-                                            placeholder="8374496658"
-                                        />
-                                    </div>
-                                    {errors.mobileNumber && <p className="text-red-500 text-xs mt-2 font-semibold">{errors.mobileNumber}</p>}
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Email <span className="text-red-500 ml-1">*</span>
-                                    </label>
-                                    <input
-                                        id="email"
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-4 py-3 bg-gray-50 border ${errors.email ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium`}
-                                        placeholder="john@example.com"
-                                    />
-                                    {errors.email && <p className="text-red-500 text-xs mt-2 font-semibold">{errors.email}</p>}
-                                </div>
-
-                                {/* Location Section */}
-                                <div className="relative" id="country-container">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Country</label>
-                                    <input
-                                        id="country"
-                                        type="text"
-                                        value={countrySearch}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            setCountrySearch(val);
-                                            setFormData(prev => ({ ...prev, country: val }));
-                                            if (val.trim()) {
-                                                const suggestions = Country.getAllCountries().filter(c =>
-                                                    c.name.toLowerCase().includes(val.toLowerCase())
-                                                ).slice(0, 5);
-                                                setFilteredCountries(suggestions);
-                                                setShowCountrySuggestions(true);
-                                            } else {
-                                                setShowCountrySuggestions(false);
-                                            }
-                                        }}
-                                        onFocus={() => {
-                                            if (countrySearch.trim()) setShowCountrySuggestions(true);
-                                        }}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
-                                        placeholder="USA"
-                                        autoComplete="off"
-                                    />
-                                    {showCountrySuggestions && filteredCountries.length > 0 && (
-                                        <div className="absolute z-[110] w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {filteredCountries.map(c => (
-                                                <div
-                                                    key={c.isoCode}
-                                                    onClick={() => {
-                                                        setCountrySearch(c.name);
-                                                        setFormData(prev => ({ ...prev, country: c.name, countryIsoCode: c.isoCode, countryCode: `+${c.phonecode}` }));
-                                                        setShowCountrySuggestions(false);
-                                                        setStateSearch("");
-                                                        setCitySearch("");
-                                                    }}
-                                                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm font-semibold text-gray-700 border-b border-gray-50 last:border-0"
-                                                >
-                                                    {c.name} (+{c.phonecode})
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {errors.country && <p className="text-red-500 text-xs mt-2 font-semibold">Required</p>}
-                                </div>
-
-                                <div className="relative" id="state-container">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">State</label>
-                                    <input
-                                        id="state"
-                                        type="text"
-                                        value={stateSearch}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            setStateSearch(val);
-                                            setFormData(prev => ({ ...prev, state: val }));
-                                            if (val.trim() && formData.countryIsoCode) {
-                                                const suggestions = State.getStatesOfCountry(formData.countryIsoCode).filter(s =>
-                                                    s.name.toLowerCase().includes(val.toLowerCase())
-                                                ).slice(0, 5);
-                                                setFilteredStates(suggestions);
-                                                setShowStateSuggestions(true);
-                                            } else {
-                                                setShowStateSuggestions(false);
-                                            }
-                                        }}
-                                        onFocus={() => {
-                                            if (stateSearch.trim() && formData.countryIsoCode) setShowStateSuggestions(true);
-                                        }}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
-                                        placeholder="California"
-                                        autoComplete="off"
-                                    />
-                                    {showStateSuggestions && filteredStates.length > 0 && (
-                                        <div className="absolute z-[110] w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {filteredStates.map(s => (
-                                                <div
-                                                    key={s.isoCode}
-                                                    onClick={() => {
-                                                        setStateSearch(s.name);
-                                                        setFormData(prev => ({ ...prev, state: s.name, stateIsoCode: s.isoCode }));
-                                                        setShowStateSuggestions(false);
-                                                        setCitySearch("");
-                                                    }}
-                                                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm font-semibold text-gray-700 border-b border-gray-50 last:border-0"
-                                                >
-                                                    {s.name}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {errors.state && <p className="text-red-500 text-xs mt-2 font-semibold">Required</p>}
-                                </div>
-
-                                <div className="relative" id="city-container">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">City</label>
-                                    <input
-                                        id="city"
-                                        type="text"
-                                        value={citySearch}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            setCitySearch(val);
-                                            setFormData(prev => ({ ...prev, city: val }));
-                                            if (val.trim() && formData.countryIsoCode && formData.stateIsoCode) {
-                                                const suggestions = City.getCitiesOfState(formData.countryIsoCode, formData.stateIsoCode).filter(c =>
-                                                    c.name.toLowerCase().includes(val.toLowerCase())
-                                                ).slice(0, 5);
-                                                setFilteredCities(suggestions);
-                                                setShowCitySuggestions(true);
-                                            } else {
-                                                setShowCitySuggestions(false);
-                                            }
-                                        }}
-                                        onFocus={() => {
-                                            if (citySearch.trim() && formData.countryIsoCode && formData.stateIsoCode) setShowCitySuggestions(true);
-                                        }}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
-                                        placeholder="Los Angeles"
-                                        autoComplete="off"
-                                    />
-                                    {showCitySuggestions && filteredCities.length > 0 && (
-                                        <div className="absolute z-[110] w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {filteredCities.map(c => (
-                                                <div
-                                                    key={c.name}
-                                                    onClick={() => {
-                                                        setCitySearch(c.name);
-                                                        setFormData(prev => ({ ...prev, city: c.name }));
-                                                        setShowCitySuggestions(false);
-                                                    }}
-                                                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm font-semibold text-gray-700 border-b border-gray-50 last:border-0"
-                                                >
-                                                    {c.name}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {errors.city && <p className="text-red-500 text-xs mt-2 font-semibold">Required</p>}
-                                </div>
-
-                                {/* Category Dropdown */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Business Category</label>
+                                <div className="relative">
                                     <select
-                                        id="category"
-                                        value={formData.category}
-                                        onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer font-medium"
+                                        value={selectedCategory}
+                                        onChange={(e) => setSelectedCategory(e.target.value)}
+                                        className="px-6 py-3 bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-gray-600 font-bold cursor-pointer appearance-none min-w-[200px]"
                                     >
-                                        <option value="">Select Category</option>
+                                        <option value="">All Categories</option>
                                         {categories.map(cat => (
                                             <option key={cat._id} value={cat._id}>{cat.name}</option>
                                         ))}
                                     </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                        <ChevronDown size={18} />
+                                    </div>
                                 </div>
+                                <button
+                                    onClick={handleAddBusiness}
+                                    className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 h-[50px] whitespace-nowrap"
+                                >
+                                    <Plus size={20} />
+                                    <span>Add New</span>
+                                </button>
+                            </div>
 
-                                <div className="md:col-span-2">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
-                                    <textarea
-                                        id="address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all h-24 resize-none font-medium"
-                                        placeholder="Enter full address..."
-                                    />
-                                </div>
-
-                                {/* Password */}
-                                <div className="md:col-span-1">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
-                                    <input
-                                        id="password"
-                                        type="password"
-                                        value={formData.password}
-                                        onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
-                                        placeholder="••••••••"
-                                    />
-                                </div>
-
-                                {/* Image Upload */}
-                                <div className="md:col-span-1">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Image Upload</label>
-                                    <div className="relative border-2 border-dashed border-gray-100 bg-gray-50 rounded-2xl p-2 transition-all h-[54px]">
-                                        <input
-                                            id="logo"
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleInputChange}
-                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                        />
-                                        <div className="flex items-center justify-center h-full">
-                                            {imagePreview ? (
-                                                <div className="flex items-center space-x-3 w-full px-2">
-                                                    <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 bg-white">
-                                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                                    </div>
-                                                    <span className="text-blue-600 font-bold truncate italic text-xs flex-1">Change Image</span>
-                                                </div>
+                            <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-gray-50 border-b border-gray-100">
+                                                <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">ID</th>
+                                                <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Image</th>
+                                                <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Business Name</th>
+                                                <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Username</th>
+                                                <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Category</th>
+                                                <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Phone</th>
+                                                <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Status</th>
+                                                <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-50">
+                                            {filteredBusinesses.length > 0 ? (
+                                                filteredBusinesses.map((biz, index) => (
+                                                    <tr key={biz._id} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="px-6 py-4 text-gray-700 font-medium text-center">{index + 1}</td>
+                                                        <td className="px-6 py-4 text-center">
+                                                            <div
+                                                                onClick={() => setPreviewImageUrl(biz.logo)}
+                                                                className="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 mx-auto bg-gray-50 cursor-zoom-in group"
+                                                            >
+                                                                {biz.logo ? (
+                                                                    <img src={biz.logo} alt={biz.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                                                                ) : (
+                                                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                                        <Upload size={14} />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-gray-700 font-bold whitespace-nowrap">{biz.name}</td>
+                                                        <td className="px-6 py-4 text-gray-500 font-medium">{biz.userName || 'N/A'}</td>
+                                                        <td className="px-6 py-4 text-gray-500 font-medium">{biz.category?.name || 'N/A'}</td>
+                                                        <td className="px-6 py-4 text-gray-500 font-medium">{biz.mobileNumber || biz.phoneNumber || 'N/A'}</td>
+                                                        <td className="px-6 py-4 text-center">
+                                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${biz.status !== false ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
+                                                                {biz.status !== false ? 'Active' : 'Inactive'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center justify-center space-x-2">
+                                                                <button
+                                                                    onClick={() => handleViewBusiness(biz)}
+                                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex flex-col items-center group"
+                                                                    title="View Details"
+                                                                >
+                                                                    <Eye size={18} className="group-hover:scale-110 transition-transform" />
+                                                                    <span className="text-[10px] font-bold mt-0.5">{biz.views || 0}</span>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleEditBusiness(biz)}
+                                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                    title="Edit"
+                                                                >
+                                                                    <Edit size={18} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteBusiness(biz._id)}
+                                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                                    title="Delete"
+                                                                >
+                                                                    <Trash2 size={18} />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
                                             ) : (
-                                                <div className="flex items-center space-x-2 text-gray-400">
-                                                    <Upload size={18} />
-                                                    <span className="text-xs font-bold uppercase tracking-wider">Upload Image</span>
-                                                </div>
+                                                <tr>
+                                                    <td colSpan="8" className="px-6 py-10 text-center text-gray-500 font-medium">
+                                                        No businesses found matching your search.
+                                                    </td>
+                                                </tr>
                                             )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        </>
+                    ) : (
+                        <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-20 animate-in fade-in slide-in-from-bottom-5 duration-300">
+                            <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-white">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-800">{editBusinessId ? 'Edit Business' : 'Add New Business'}</h2>
+                                    <p className="text-gray-500 mt-1">{editBusinessId ? 'Update business information.' : 'Fill in the details to create a new business.'}</p>
+                                </div>
+                                <button
+                                    onClick={resetForm}
+                                    className="p-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-400"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Business Name */}
+                                    <div className="md:col-span-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Business Name <span className="text-red-500 ml-1">*</span>
+                                        </label>
+                                        <input
+                                            id="name"
+                                            type="text"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
+                                            className={`w-full px-4 py-3 bg-gray-50 border ${errors.name ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium`}
+                                            placeholder="e.g. Starbucks"
+                                        />
+                                        {errors.name && <p className="text-red-500 text-xs mt-2 font-semibold">{errors.name}</p>}
+                                    </div>
+
+                                    {/* Username */}
+                                    <div className="md:col-span-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Username <span className="text-red-500 ml-1">*</span>
+                                        </label>
+                                        <input
+                                            id="userName"
+                                            type="text"
+                                            value={formData.userName}
+                                            onChange={handleInputChange}
+                                            className={`w-full px-4 py-3 bg-gray-50 border ${errors.userName ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium`}
+                                            placeholder="e.g. starbucks123"
+                                        />
+                                        {errors.userName && <p className="text-red-500 text-xs mt-2 font-semibold">{errors.userName}</p>}
+                                    </div>
+
+                                    {/* Mobile Number */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Mobile Number <span className="text-red-500 ml-1">*</span>
+                                        </label>
+                                        <div className={`flex items-center bg-gray-50 border ${errors.mobileNumber ? 'border-red-500' : 'border-gray-100'} rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20 transition-all`}>
+                                            <select
+                                                id="countryCode"
+                                                value={formData.countryCode}
+                                                onChange={handleInputChange}
+                                                className="bg-transparent pl-4 pr-1 py-3 text-sm font-bold text-gray-600 focus:outline-none cursor-pointer border-r border-gray-100"
+                                            >
+                                                <option value="+91">+91 (IN)</option>
+                                                <option value="+1">+1 (US)</option>
+                                                <option value="+44">+44 (UK)</option>
+                                                <option value="+971">+971 (UAE)</option>
+                                                <option value="+61">+61 (AU)</option>
+                                                <option value="+81">+81 (JP)</option>
+                                                <option value="+49">+49 (DE)</option>
+                                                <option value="+33">+33 (FR)</option>
+                                                <option value="+7">+7 (RU)</option>
+                                                <option value="+86">+86 (CN)</option>
+                                            </select>
+                                            <input
+                                                id="mobileNumber"
+                                                type="text"
+                                                value={formData.mobileNumber}
+                                                onChange={handleInputChange}
+                                                className="flex-1 px-4 py-3 bg-transparent focus:outline-none font-medium"
+                                                placeholder="8374496658"
+                                            />
+                                        </div>
+                                        {errors.mobileNumber && <p className="text-red-500 text-xs mt-2 font-semibold">{errors.mobileNumber}</p>}
+                                    </div>
+
+                                    {/* Email */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Email <span className="text-red-500 ml-1">*</span>
+                                        </label>
+                                        <input
+                                            id="email"
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            className={`w-full px-4 py-3 bg-gray-50 border ${errors.email ? 'border-red-500' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium`}
+                                            placeholder="john@example.com"
+                                        />
+                                        {errors.email && <p className="text-red-500 text-xs mt-2 font-semibold">{errors.email}</p>}
+                                    </div>
+
+                                    {/* Location Section */}
+                                    <div className="relative" id="country-container">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Country</label>
+                                        <input
+                                            id="country"
+                                            type="text"
+                                            value={countrySearch}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setCountrySearch(val);
+                                                setFormData(prev => ({ ...prev, country: val }));
+                                                if (val.trim()) {
+                                                    const suggestions = Country.getAllCountries().filter(c =>
+                                                        c.name.toLowerCase().includes(val.toLowerCase())
+                                                    ).slice(0, 5);
+                                                    setFilteredCountries(suggestions);
+                                                    setShowCountrySuggestions(true);
+                                                } else {
+                                                    setShowCountrySuggestions(false);
+                                                }
+                                            }}
+                                            onFocus={() => {
+                                                if (countrySearch.trim()) setShowCountrySuggestions(true);
+                                            }}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                            placeholder="USA"
+                                            autoComplete="off"
+                                        />
+                                        {showCountrySuggestions && filteredCountries.length > 0 && (
+                                            <div className="absolute z-[110] w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                {filteredCountries.map(c => (
+                                                    <div
+                                                        key={c.isoCode}
+                                                        onClick={() => {
+                                                            setCountrySearch(c.name);
+                                                            setFormData(prev => ({ ...prev, country: c.name, countryIsoCode: c.isoCode, countryCode: `+${c.phonecode}` }));
+                                                            setShowCountrySuggestions(false);
+                                                            setStateSearch("");
+                                                            setCitySearch("");
+                                                        }}
+                                                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm font-semibold text-gray-700 border-b border-gray-50 last:border-0"
+                                                    >
+                                                        {c.name} (+{c.phonecode})
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {errors.country && <p className="text-red-500 text-xs mt-2 font-semibold">Required</p>}
+                                    </div>
+
+                                    <div className="relative" id="state-container">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">State</label>
+                                        <input
+                                            id="state"
+                                            type="text"
+                                            value={stateSearch}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setStateSearch(val);
+                                                setFormData(prev => ({ ...prev, state: val }));
+                                                if (val.trim() && formData.countryIsoCode) {
+                                                    const suggestions = State.getStatesOfCountry(formData.countryIsoCode).filter(s =>
+                                                        s.name.toLowerCase().includes(val.toLowerCase())
+                                                    ).slice(0, 5);
+                                                    setFilteredStates(suggestions);
+                                                    setShowStateSuggestions(true);
+                                                } else {
+                                                    setShowStateSuggestions(false);
+                                                }
+                                            }}
+                                            onFocus={() => {
+                                                if (stateSearch.trim() && formData.countryIsoCode) setShowStateSuggestions(true);
+                                            }}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                            placeholder="California"
+                                            autoComplete="off"
+                                        />
+                                        {showStateSuggestions && filteredStates.length > 0 && (
+                                            <div className="absolute z-[110] w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                {filteredStates.map(s => (
+                                                    <div
+                                                        key={s.isoCode}
+                                                        onClick={() => {
+                                                            setStateSearch(s.name);
+                                                            setFormData(prev => ({ ...prev, state: s.name, stateIsoCode: s.isoCode }));
+                                                            setShowStateSuggestions(false);
+                                                            setCitySearch("");
+                                                        }}
+                                                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm font-semibold text-gray-700 border-b border-gray-50 last:border-0"
+                                                    >
+                                                        {s.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {errors.state && <p className="text-red-500 text-xs mt-2 font-semibold">Required</p>}
+                                    </div>
+
+                                    <div className="relative" id="city-container">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">City</label>
+                                        <input
+                                            id="city"
+                                            type="text"
+                                            value={citySearch}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setCitySearch(val);
+                                                setFormData(prev => ({ ...prev, city: val }));
+                                                if (val.trim() && formData.countryIsoCode && formData.stateIsoCode) {
+                                                    const suggestions = City.getCitiesOfState(formData.countryIsoCode, formData.stateIsoCode).filter(c =>
+                                                        c.name.toLowerCase().includes(val.toLowerCase())
+                                                    ).slice(0, 5);
+                                                    setFilteredCities(suggestions);
+                                                    setShowCitySuggestions(true);
+                                                } else {
+                                                    setShowCitySuggestions(false);
+                                                }
+                                            }}
+                                            onFocus={() => {
+                                                if (citySearch.trim() && formData.countryIsoCode && formData.stateIsoCode) setShowCitySuggestions(true);
+                                            }}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                            placeholder="Los Angeles"
+                                            autoComplete="off"
+                                        />
+                                        {showCitySuggestions && filteredCities.length > 0 && (
+                                            <div className="absolute z-[110] w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                {filteredCities.map(c => (
+                                                    <div
+                                                        key={c.name}
+                                                        onClick={() => {
+                                                            setCitySearch(c.name);
+                                                            setFormData(prev => ({ ...prev, city: c.name }));
+                                                            setShowCitySuggestions(false);
+                                                        }}
+                                                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm font-semibold text-gray-700 border-b border-gray-50 last:border-0"
+                                                    >
+                                                        {c.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {errors.city && <p className="text-red-500 text-xs mt-2 font-semibold">Required</p>}
+                                    </div>
+
+                                    {/* Category Dropdown */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Business Category</label>
+                                        <select
+                                            id="category"
+                                            value={formData.category}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer font-medium"
+                                        >
+                                            <option value="">Select Category</option>
+                                            {categories.map(cat => (
+                                                <option key={cat._id} value={cat._id}>{cat.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                                        <textarea
+                                            id="address"
+                                            value={formData.address}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all h-24 resize-none font-medium"
+                                            placeholder="Enter full address..."
+                                        />
+                                    </div>
+
+                                    {/* Password */}
+                                    <div className="md:col-span-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                                        <input
+                                            id="password"
+                                            type="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                            placeholder="••••••••"
+                                        />
+                                    </div>
+
+                                    {/* Image Upload */}
+                                    <div className="md:col-span-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Image Upload</label>
+                                        <div className="relative border-2 border-dashed border-gray-100 bg-gray-50 rounded-2xl p-2 transition-all h-[54px]">
+                                            <input
+                                                id="logo"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleInputChange}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                            />
+                                            <div className="flex items-center justify-center h-full">
+                                                {imagePreview ? (
+                                                    <div className="flex items-center space-x-3 w-full px-2">
+                                                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 bg-white">
+                                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                                        </div>
+                                                        <span className="text-blue-600 font-bold truncate italic text-xs flex-1">Change Image</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center space-x-2 text-gray-400">
+                                                        <Upload size={18} />
+                                                        <span className="text-xs font-bold uppercase tracking-wider">Upload Image</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="pt-6">
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className={`w-full py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-[0.98] ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
-                                >
-                                    {isSubmitting ? 'Saving...' : (editBusinessId ? 'Update Business' : 'Proceed')}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                )}
+                                <div className="pt-6">
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className={`w-full py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-[0.98] ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    >
+                                        {isSubmitting ? 'Saving...' : (editBusinessId ? 'Update Business' : 'Proceed')}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+                </div>
             </main>
 
             {/* Image Preview Modal */}
