@@ -15,8 +15,8 @@ export default function Sidebar() {
         if (typeof window !== "undefined") {
             // Client-side protection fallback (using sessionStorage for tab-close auto-logout)
             const isLoggedIn = sessionStorage.getItem("isLoggedIn");
-            if (isLoggedIn !== "true" && pathname !== "/admin" && pathname !== "/admin/signup") {
-                router.push("/admin");
+            if (isLoggedIn !== "true" && pathname !== "/admin/login" && pathname !== "/admin/signup" && pathname !== "/admin") {
+                router.push("/admin/login");
                 return;
             }
 
@@ -76,7 +76,7 @@ export default function Sidebar() {
                 }).then(() => {
                     sessionStorage.removeItem("isLoggedIn");
                     localStorage.removeItem("token");
-                    router.push("/admin");
+                    router.push("/admin/login");
                 });
             }
         } catch (error) {

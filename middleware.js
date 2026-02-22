@@ -8,26 +8,30 @@ export function middleware(request) {
 
     // 1. Identify admin routes
     const isAdminPath = pathname.startsWith('/admin');
-    const isLoginPage = pathname === '/admin';
+    const isLoginPage = pathname === '/admin/login';
     const isSignupPage = pathname === '/admin/signup';
+    const isRootAdmin = pathname === '/admin';
 
     // 2. Get session from cookies
     const session = request.cookies.get('admin_session');
 
     if (isAdminPath) {
+        // If it's the root /admin, allow it to redirect (handled by page.js) 
+        // OR handle it here for faster response
+        if (isRootAdmin) {
+            return NextResponse.redirect(new URL('/admin/login', request.url));
+        }
+
         // If it's an admin route but NOT the login or signup page
         if (!isLoginPage && !isSignupPage) {
             if (!session) {
-                console.log(`[Middleware] Unauthorized access to ${pathname}, redirecting to /admin`);
-                return NextResponse.redirect(new URL('/admin', request.url));
+                console.log(`[Middleware] Unauthorized access to ${pathname}, redirecting to /admin/login`);
+                return NextResponse.redirect(new URL('/admin/login', request.url));
             }
         }
 
-        // If user is ALREADY logged in and tries to go to login page
-        if (isLoginPage && session) {
-            console.log(`[Middleware] User already logged in, redirecting from /admin to /admin/dashboard`);
-            return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-        }
+        // Note: Removed redirect from login to dashboard when session exists
+        // to allow the auto-logout logic on the login page to trigger.
     }
 
     return NextResponse.next();

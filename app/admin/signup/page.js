@@ -44,7 +44,7 @@ export default function SignupPage() {
                     timer: 3000,
                     timerProgressBar: true
                 }).then(() => {
-                    router.push("/admin");
+                    router.push("/admin/login");
                 });
             } else {
                 setError(data.error || "Failed to create account");
@@ -159,7 +159,7 @@ export default function SignupPage() {
                         <div className="text-center mt-6">
                             <p className="text-gray-500 text-sm">
                                 Already have an account?{" "}
-                                <Link href="/admin" className="text-blue-600 font-semibold hover:underline">
+                                <Link href="/admin/login" className="text-blue-600 font-semibold hover:underline">
                                     Login
                                 </Link>
                             </p>

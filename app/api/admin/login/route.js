@@ -31,6 +31,7 @@ export async function POST(req) {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
+            // Note: Not setting maxAge or expires makes this a session cookie
         });
 
         return response;
