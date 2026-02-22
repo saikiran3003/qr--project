@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
+import MobileHeader from "../../components/MobileHeader";
 import { Search, Plus, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -12,6 +13,7 @@ export default function CategoriesPage() {
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const syncCategories = async () => {
         try {
@@ -26,7 +28,6 @@ export default function CategoriesPage() {
     };
 
     useEffect(() => {
-        // middleware handles route protection
         syncCategories();
         setLoading(false);
 
@@ -146,18 +147,13 @@ export default function CategoriesPage() {
             showLoaderOnConfirm: true,
             preConfirm: async () => {
                 try {
-                    console.log('Deleting category with ID:', id);
                     const res = await fetch(`/api/categories/${id}`, {
                         method: "DELETE",
                     });
                     const responseData = await res.json();
-                    if (!res.ok) {
-                        throw new Error(responseData.error || "Failed to delete category");
-                    }
-                    console.log('Delete response:', responseData);
+                    if (!res.ok) throw new Error(responseData.error || "Failed to delete category");
                     return responseData;
                 } catch (error) {
-                    console.error('Delete Category Error:', error);
                     Swal.showValidationMessage(`Request failed: ${error.message}`);
                     return false;
                 }
@@ -185,57 +181,56 @@ export default function CategoriesPage() {
 
     return (
         <div className="flex min-h-screen bg-gray-50 overflow-x-hidden relative">
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-            <main className="flex-1 ml-64 p-10 min-w-0">
-                <div className="max-w-[1600px] mx-auto w-full">
-                    <header className="flex items-center justify-between mb-10">
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Categories</h1>
-                            <p className="text-gray-500 mt-1">Manage your menu categories here.</p>
+            <main className="flex-1 lg:ml-64 min-w-0">
+                <MobileHeader onToggleSidebar={() => setIsSidebarOpen(true)} />
+                <div className="p-4 sm:p-6 lg:p-10">
+                    <div className="max-w-[1600px] mx-auto w-full">
+                        <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-10 space-y-4 sm:space-y-0 text-center sm:text-left">
+                            <div>
+                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Categories</h1>
+                                <p className="text-gray-500 mt-1 text-sm sm:text-base">Manage your menu categories here.</p>
+                            </div>
+                            <button
+                                onClick={handleAddCategory}
+                                className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 w-full sm:w-auto"
+                            >
+                                <Plus size={20} />
+                                <span>Add New Category</span>
+                            </button>
+                        </header>
+
+                        <div className="mb-6 relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                            <input
+                                type="text"
+                                placeholder="Search category..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-gray-600 font-medium shadow-sm"
+                            />
                         </div>
-                        <button
-                            onClick={handleAddCategory}
-                            className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
-                        >
-                            <Plus size={20} />
-                            <span>Add New Category</span>
-                        </button>
-                    </header>
 
-                    <div className="mb-6 relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search category..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-gray-600"
-                        />
-                    </div>
-
-                    <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-gray-50 border-b border-gray-100">
-                                        <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">ID</th>
-                                        <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Category Name</th>
-                                        <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Slug</th>
-                                        <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Status</th>
-                                        <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {filteredCategories.length > 0 ? (
-                                        filteredCategories.map((cat, index) => {
-                                            return (
+                        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse min-w-[600px]">
+                                    <thead>
+                                        <tr className="bg-gray-50 border-b border-gray-100">
+                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">ID</th>
+                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Category Name</th>
+                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Slug</th>
+                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Status</th>
+                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50">
+                                        {filteredCategories.length > 0 ? (
+                                            filteredCategories.map((cat, index) => (
                                                 <tr key={cat._id} className="hover:bg-gray-50 transition-colors">
                                                     <td className="px-6 py-4 text-gray-700 font-medium text-center">{index + 1}</td>
                                                     <td className="px-6 py-4">
-                                                        <span className="text-gray-700 font-bold whitespace-nowrap">
-                                                            {cat.name}
-                                                        </span>
+                                                        <span className="text-gray-700 font-bold whitespace-nowrap">{cat.name}</span>
                                                     </td>
                                                     <td className="px-6 py-4 text-gray-500 font-medium">{cat.slug}</td>
                                                     <td className="px-6 py-4 text-center">
@@ -260,19 +255,19 @@ export default function CategoriesPage() {
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            );
-                                        })
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="5" className="px-6 py-10 text-center text-gray-500 font-medium">
-                                                No categories found matching your search.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="5" className="px-6 py-10 text-center text-gray-500 font-medium">
+                                                    No categories found matching your search.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </main>
         </div>
