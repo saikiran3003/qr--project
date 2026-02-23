@@ -252,7 +252,7 @@ export default function ManageBusinessPage() {
                             <>
                                 <header className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 sm:mb-10 space-y-4 lg:space-y-0 text-center lg:text-left">
                                     <div className="flex flex-col sm:flex-row items-center sm:space-x-4 space-y-4 sm:space-y-0">
-                                        <Link href="/admin/categories" className="p-3 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all shadow-sm group">
+                                        <Link href="/admin/dashboard" className="p-3 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all shadow-sm group">
                                             <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                                         </Link>
                                         <div>

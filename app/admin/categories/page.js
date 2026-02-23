@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
 import MobileHeader from "../../components/MobileHeader";
-import { Search, Plus, Edit, Trash2 } from "lucide-react";
+import { Search, Plus, Edit, Trash2, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import Swal from "sweetalert2";
 
@@ -188,9 +188,14 @@ export default function CategoriesPage() {
                 <div className="p-4 sm:p-6 lg:p-10">
                     <div className="max-w-[1600px] mx-auto w-full">
                         <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-10 space-y-4 sm:space-y-0 text-center sm:text-left">
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Categories</h1>
-                                <p className="text-gray-500 mt-1 text-sm sm:text-base">Manage your menu categories here.</p>
+                            <div className="flex flex-col sm:flex-row items-center sm:space-x-4 space-y-4 sm:space-y-0">
+                                <Link href="/admin/dashboard" className="p-3 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all shadow-sm group">
+                                    <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                                </Link>
+                                <div>
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Categories</h1>
+                                    <p className="text-gray-500 mt-1 text-sm sm:text-base">Manage your menu categories here.</p>
+                                </div>
                             </div>
                             <button
                                 onClick={handleAddCategory}
