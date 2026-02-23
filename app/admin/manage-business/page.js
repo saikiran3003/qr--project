@@ -315,9 +315,9 @@ export default function ManageBusinessPage() {
                                                             <td className="px-6 py-4 text-gray-500 font-medium">{biz.userName || 'N/A'}</td>
                                                             <td className="px-6 py-4 text-center">
                                                                 <div className="flex items-center justify-center space-x-2">
-                                                                    <button onClick={() => handleViewBusiness(biz)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex flex-col items-center group">
+                                                                    <button onClick={() => handleViewBusiness(biz)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center space-x-1 group">
                                                                         <Eye size={18} />
-                                                                        <span className="text-[10px] font-bold mt-0.5">{biz.views || 0}</span>
+                                                                        <span className="text-[10px] font-bold">{biz.views || 0}</span>
                                                                     </button>
                                                                     <button onClick={() => handleEditBusiness(biz)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit size={18} /></button>
                                                                     <button onClick={() => handleDeleteBusiness(biz._id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={18} /></button>
@@ -364,6 +364,32 @@ export default function ManageBusinessPage() {
                                             <input id="mobileNumber" type="text" value={formData.mobileNumber} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="10 digits" />
                                             {errors.mobileNumber && <p className="text-red-500 text-xs mt-1">{errors.mobileNumber}</p>}
                                         </div>
+
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Business Logo</label>
+                                            <div className="flex items-center space-x-6">
+                                                <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center group relative">
+                                                    {imagePreview ? (
+                                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                                    ) : formData.logo && typeof formData.logo === 'string' ? (
+                                                        <img src={formData.logo} alt="Current" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <Upload className="text-gray-300 group-hover:text-blue-400 transition-colors" size={28} />
+                                                    )}
+                                                    <input
+                                                        id="logo"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleInputChange}
+                                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm text-gray-500 mb-2 font-medium">Click to upload or drag and drop</p>
+                                                    <p className="text-xs text-gray-400">SVG, PNG, JPG or GIF (max. 800x800px)</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg hover:bg-blue-700 disabled:opacity-50 transition-all active:scale-[0.98]">
                                         {isSubmitting ? 'Saving...' : 'Save Business'}
@@ -390,6 +416,19 @@ export default function ManageBusinessPage() {
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-bold">Business Details</h2>
                             <button onClick={() => setViewBusiness(null)}><X size={24} className="text-gray-400" /></button>
+                        </div>
+                        <div className="mb-8 text-center">
+                            <div className="w-32 h-32 mx-auto rounded-3xl overflow-hidden border-4 border-gray-50 shadow-sm bg-gray-50 mb-4 group relative">
+                                {viewBusiness.logo ? (
+                                    <img src={viewBusiness.logo} alt={viewBusiness.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                        <Upload size={40} />
+                                    </div>
+                                )}
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800">{viewBusiness.name}</h3>
+                            <p className="text-sm text-gray-500 font-medium">Business Identity</p>
                         </div>
                         <div className="space-y-4">
                             <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Name:</strong> <span className="text-gray-800 font-medium">{viewBusiness.name}</span></p>
