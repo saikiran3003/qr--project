@@ -15,3 +15,8 @@ body {
   overflow-x: hidden;
   position: relative;
 }
+@media (min-width: 64rem) {
+    .lg\:h-83 {
+        height: calc(var(--spacing) * 83);
+    }
+}

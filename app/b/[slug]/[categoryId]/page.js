@@ -116,7 +116,11 @@ export default function CategoryDetailsPage() {
                         >
                             <div className="w-28 h-28 rounded-[1.5rem] overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
                                 {prod.images?.[0] ? (
-                                    <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    <img
+                                        src={prod.images[0]}
+                                        alt={prod.name}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-300">
                                         <ImageIcon size={24} />
@@ -126,7 +130,7 @@ export default function CategoryDetailsPage() {
                             <div className="flex-1 py-1">
                                 <div className="flex items-start justify-between">
                                     <h3 className="font-black text-gray-800 leading-tight pr-8 uppercase tracking-tight line-clamp-2">{prod.name}</h3>
-                                    <div className="flex items-center text-amber-500">
+                                    <div className="absolute top-4 right-4 flex items-center bg-white/90 backdrop-blur-sm px-2 py-1 rounded-xl shadow-sm border border-gray-100/50 text-amber-500 z-10">
                                         <Star size={12} fill="currentColor" />
                                         <span className="text-[10px] font-black ml-1">4.5</span>
                                     </div>
@@ -158,3 +162,5 @@ export default function CategoryDetailsPage() {
         </div>
     );
 }
+
+

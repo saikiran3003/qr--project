@@ -107,8 +107,8 @@ export default function BusinessLandingPage() {
             </div>
 
             {/* Content Section */}
-            <div className="px-6 -mt-6 relative z-30">
-                <div className="bg-white rounded-[2.5rem] p-2 shadow-xl shadow-black/5 border border-gray-50">
+            <div className="px-6 -mt-6 relative z-30 lg:max-w-7xl lg:mx-auto lg:w-full">
+                <div className="bg-white rounded-[2.5rem] p-2 shadow-xl shadow-black/5 border border-gray-50 lg:p-4">
                     <div className="relative">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                         <input
@@ -131,7 +131,7 @@ export default function BusinessLandingPage() {
                             </span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-8">
                             {categories.map((cat) => (
                                 <Link
                                     key={cat._id}
@@ -160,7 +160,7 @@ export default function BusinessLandingPage() {
                 )}
 
                 {/* Products List (Grouped by Category) */}
-                <div className="mt-10 space-y-10">
+                <div className="mt-10 space-y-10 lg:space-y-16">
                     {categories.map(cat => {
                         const catProducts = (groupedProducts[cat._id] || []).filter(p => matchesSearch(p, cat));
                         if (catProducts.length === 0) return null;
@@ -173,14 +173,14 @@ export default function BusinessLandingPage() {
                                         {catProducts.length} Items
                                     </span>
                                 </div>
-                                <div className="space-y-4">
+                                <div className="space-y-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
                                     {catProducts.map(prod => (
                                         <Link
                                             key={prod._id}
                                             href={`/b/${slug}/${cat._id}`}
-                                            className="bg-white p-4 rounded-3xl flex items-start space-x-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-50 relative overflow-hidden group active:scale-[0.98] transition-all"
+                                            className="bg-white p-4 rounded-3xl flex items-start space-x-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-50 relative overflow-hidden group active:scale-[0.98] transition-all lg:flex-col lg:space-x-0 lg:p-6 lg:text-center"
                                         >
-                                            <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
+                                            <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100 lg:w-full lg:h-48 lg:mb-4">
                                                 {prod.images?.[0] ? (
                                                     <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                                 ) : (
@@ -189,10 +189,10 @@ export default function BusinessLandingPage() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="flex-1 py-1">
-                                                <div className="flex items-start justify-between">
-                                                    <h3 className="font-bold text-gray-800 leading-tight pr-4 uppercase tracking-tight line-clamp-2">{prod.name}</h3>
-                                                    <div className="flex items-center text-amber-500">
+                                            <div className="flex-1 py-1 lg:w-full">
+                                                <div className="flex items-start justify-between lg:justify-center">
+                                                    <h3 className="font-bold text-gray-800 leading-tight pr-4 uppercase tracking-tight line-clamp-2 lg:pr-0 lg:text-lg">{prod.name}</h3>
+                                                    <div className="absolute top-4 right-4 flex items-center bg-white/90 backdrop-blur-sm px-2 py-1 rounded-xl shadow-sm border border-gray-100/50 text-amber-500 z-10">
                                                         <Star size={12} fill="currentColor" />
                                                         <span className="text-[10px] font-black ml-1">4.5</span>
                                                     </div>
@@ -232,8 +232,8 @@ export default function BusinessLandingPage() {
             </div>
 
             {/* Bottom Contact Tab */}
-            <div className="fixed bottom-0 inset-x-0 p-6 z-40">
-                <div className="max-w-md mx-auto bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl shadow-black/10 rounded-[2.5rem] p-4 flex items-center justify-between">
+            <div className="fixed bottom-0 inset-x-0 p-6 z-40 lg:max-w-7xl lg:mx-auto lg:p-10">
+                <div className="max-w-md mx-auto bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl shadow-black/10 rounded-[2.5rem] p-4 flex items-center justify-between lg:max-w-xs lg:mx-0 lg:ml-auto">
                     <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
                             <Phone size={20} />

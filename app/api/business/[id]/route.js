@@ -84,8 +84,7 @@ export async function PUT(req, { params }) {
                 businessUrl = `${protocol}://${host}/b/${finalSlug}`;
             }
 
-            if (finalSlug) {
-                const businessUrl = `${protocol}://${host}/b/${finalSlug}`;
+            if (businessUrl) {
                 const qrCodeDataUrl = await QRCode.toDataURL(businessUrl, {
                     errorCorrectionLevel: 'H',
                     margin: 1,
