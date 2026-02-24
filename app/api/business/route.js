@@ -67,9 +67,16 @@ export async function POST(req) {
 
         // Generate QR Code
         // Generate QR Code with correct host and protocol for Vercel/Production
-        const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:3000';
-        const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
-        const businessUrl = `${protocol}://${host}/b/${slug}`;
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        let businessUrl;
+
+        if (baseUrl) {
+            businessUrl = `${baseUrl.replace(/\/$/, '')}/b/${slug}`;
+        } else {
+            const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:3000';
+            const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+            businessUrl = `${protocol}://${host}/b/${slug}`;
+        }
 
         const qrCodeDataUrl = await QRCode.toDataURL(businessUrl, {
             errorCorrectionLevel: 'H',

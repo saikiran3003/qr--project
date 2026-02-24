@@ -1,6 +1,7 @@
 import dbConnect from '@/lib/db';
 import Business from '@/models/Business';
 import BusinessCategory from '@/models/BusinessCategory';
+import Product from '@/models/Product';
 import { NextResponse } from 'next/server';
 
 export async function GET(req, { params }) {
@@ -14,10 +15,12 @@ export async function GET(req, { params }) {
         }
 
         const categories = await BusinessCategory.find({ business: business._id, status: true }).sort({ createdAt: 1 });
+        const products = await Product.find({ business: business._id, status: true }).sort({ createdAt: -1 });
 
         return NextResponse.json({
             business,
-            categories
+            categories,
+            products
         });
     } catch (error) {
         console.error("Public Business API Error:", error);

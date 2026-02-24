@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Phone, MapPin, Search, ChevronRight, ImageIcon, Info, Heart } from "lucide-react";
+import { Phone, MapPin, Search, ChevronRight, ImageIcon, Info, Heart, Star, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function BusinessLandingPage() {
@@ -53,10 +53,27 @@ export default function BusinessLandingPage() {
         );
     }
 
-    const { business, categories } = data;
-    const filteredCategories = categories.filter(cat =>
-        cat.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const { business, categories, products } = data;
+
+    // Group products by category
+    const groupedProducts = categories.reduce((acc, cat) => {
+        const catProducts = (products || []).filter(p => (p.category?._id || p.category) === cat._id);
+        if (catProducts.length > 0) {
+            acc[cat._id] = catProducts;
+        }
+        return acc;
+    }, {});
+
+    // Search logic: matches product name OR category name
+    const matchesSearch = (product, category) => {
+        const search = searchTerm.toLowerCase().trim();
+        if (!search) return true;
+
+        const productNameMatch = product.name.toLowerCase().includes(search);
+        const categoryNameMatch = category.name.toLowerCase().includes(search);
+
+        return productNameMatch || categoryNameMatch;
+    };
 
     return (
         <div className="min-h-[100dvh] bg-white pb-24">
@@ -96,7 +113,7 @@ export default function BusinessLandingPage() {
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                         <input
                             type="text"
-                            placeholder="Find your favorites..."
+                            placeholder="Search products or categories..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-14 pr-6 py-6 bg-gray-50/50 rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/10 font-bold text-gray-700 placeholder:text-gray-400 border-none"
@@ -104,17 +121,18 @@ export default function BusinessLandingPage() {
                     </div>
                 </div>
 
-                <div className="mt-10">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-black text-gray-800 tracking-tight">Categories</h2>
-                        <span className="text-xs font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-full">
-                            {categories.length} Total
-                        </span>
-                    </div>
+                {/* Categories Grid (Visible when NOT searching) */}
+                {searchTerm === "" && (
+                    <div className="mt-10">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-black text-gray-800 tracking-tight">Browse Categories</h2>
+                            <span className="text-xs font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-full">
+                                {categories.length} Total
+                            </span>
+                        </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        {filteredCategories.length > 0 ? (
-                            filteredCategories.map((cat) => (
+                        <div className="grid grid-cols-2 gap-4">
+                            {categories.map((cat) => (
                                 <Link
                                     key={cat._id}
                                     href={`/b/${slug}/${cat._id}`}
@@ -136,13 +154,80 @@ export default function BusinessLandingPage() {
                                         </div>
                                     </div>
                                 </Link>
-                            ))
-                        ) : (
-                            <div className="col-span-2 py-20 text-center text-gray-400 bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200 font-bold">
-                                No items found
-                            </div>
-                        )}
+                            ))}
+                        </div>
                     </div>
+                )}
+
+                {/* Products List (Grouped by Category) */}
+                <div className="mt-10 space-y-10">
+                    {categories.map(cat => {
+                        const catProducts = (groupedProducts[cat._id] || []).filter(p => matchesSearch(p, cat));
+                        if (catProducts.length === 0) return null;
+
+                        return (
+                            <div key={cat._id}>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-xl font-black text-gray-800 tracking-tight uppercase">{cat.name}</h2>
+                                    <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-full">
+                                        {catProducts.length} Items
+                                    </span>
+                                </div>
+                                <div className="space-y-4">
+                                    {catProducts.map(prod => (
+                                        <Link
+                                            key={prod._id}
+                                            href={`/b/${slug}/${cat._id}`}
+                                            className="bg-white p-4 rounded-3xl flex items-start space-x-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-50 relative overflow-hidden group active:scale-[0.98] transition-all"
+                                        >
+                                            <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
+                                                {prod.images?.[0] ? (
+                                                    <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                        <ImageIcon size={20} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 py-1">
+                                                <div className="flex items-start justify-between">
+                                                    <h3 className="font-bold text-gray-800 leading-tight pr-4 uppercase tracking-tight line-clamp-2">{prod.name}</h3>
+                                                    <div className="flex items-center text-amber-500">
+                                                        <Star size={12} fill="currentColor" />
+                                                        <span className="text-[10px] font-black ml-1">4.5</span>
+                                                    </div>
+                                                </div>
+                                                <p className="text-[10px] font-bold text-gray-400 mt-2 line-clamp-1">{prod.description || 'Details available in category'}</p>
+                                                <div className="mt-4 flex items-center justify-between">
+                                                    <div className="flex items-center space-x-2">
+                                                        <span className="text-lg font-black text-indigo-600">₹{prod.salePrice}</span>
+                                                        {prod.mrpPrice > prod.salePrice && (
+                                                            <span className="text-[10px] font-bold text-gray-400 line-through">₹{prod.mrpPrice}</span>
+                                                        )}
+                                                    </div>
+                                                    <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                                        <Plus size={16} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
+
+                    {Object.keys(groupedProducts).length === 0 && !loading && (
+                        <div className="py-20 text-center text-gray-400 bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200 font-bold">
+                            No products found in this store
+                        </div>
+                    )}
+
+                    {searchTerm !== "" && categories.every(cat => (groupedProducts[cat._id] || []).filter(p => matchesSearch(p, cat)).length === 0) && (
+                        <div className="py-20 text-center text-gray-400 bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200 font-bold">
+                            No matching items found for "{searchTerm}"
+                        </div>
+                    )}
                 </div>
             </div>
 
