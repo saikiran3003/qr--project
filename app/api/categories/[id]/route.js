@@ -1,13 +1,50 @@
 import dbConnect from '@/lib/db';
-import Category from '@/models/Category';
+import MasterCategory from '@/models/MasterCategory';
+import cloudinary from '@/lib/cloudinary';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req, { params }) {
     try {
         await dbConnect();
         const { id } = await params;
-        const data = await req.json();
-        const category = await Category.findByIdAndUpdate(id, data, { new: true });
+
+        const contentType = req.headers.get('content-type') || '';
+        let data = {};
+        let imageUrl = null;
+
+        if (contentType.includes('multipart/form-data')) {
+            const formData = await req.formData();
+            data = {
+                name: formData.get('name'),
+                slug: formData.get('slug'),
+                status: formData.get('status') === 'true',
+            };
+
+            const imageFile = formData.get('image');
+            // Only upload if it's a new file, not just the existing URL string
+            if (imageFile && typeof imageFile !== 'string') {
+                const arrayBuffer = await imageFile.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+                const uploadResponse = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        { folder: 'qr-menu-categories' },
+                        (error, result) => {
+                            if (error) reject(error);
+                            else resolve(result);
+                        }
+                    );
+                    uploadStream.end(buffer);
+                });
+                imageUrl = uploadResponse.secure_url;
+            }
+        } else {
+            data = await req.json();
+        }
+
+        const updateData = { ...data };
+        if (imageUrl) updateData.image = imageUrl;
+
+        const category = await MasterCategory.findByIdAndUpdate(id, updateData, { new: true });
         return NextResponse.json(category);
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -18,16 +55,12 @@ export async function DELETE(req, { params }) {
     try {
         await dbConnect();
         const { id } = await params;
-        console.log('Received Category DELETE request for ID:', id);
-        const deletedCategory = await Category.findByIdAndDelete(id);
+        const deletedCategory = await MasterCategory.findByIdAndDelete(id);
         if (!deletedCategory) {
-            console.error('Category not found for deletion:', id);
             return NextResponse.json({ error: 'Category not found' }, { status: 404 });
         }
-        console.log('Category deleted successfully from DB:', id);
         return NextResponse.json({ message: 'Category deleted successfully' });
     } catch (error) {
-        console.error('DELETE /api/categories/[id] Error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

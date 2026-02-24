@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
 
-const CategorySchema = new mongoose.Schema({
+const SubCategorySchema = new mongoose.Schema({
+    parentCategory: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'BusinessCategory',
+        required: true,
+    },
     name: {
         type: String,
         required: true,
-    },
-    slug: {
-        type: String,
-        required: true,
-        unique: true,
     },
     status: {
         type: Boolean,
@@ -20,4 +20,4 @@ const CategorySchema = new mongoose.Schema({
     },
 });
 
-export default mongoose.models.Category || mongoose.model('Category', CategorySchema);
+export default mongoose.models.SubCategory || mongoose.model('SubCategory', SubCategorySchema);

@@ -29,7 +29,7 @@ const BusinessSchema = new mongoose.Schema({
     logo: String,
     category: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+        ref: 'MasterCategory',
         required: true,
     },
     status: {
@@ -40,6 +40,7 @@ const BusinessSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    qrCode: String,
     createdAt: {
         type: Date,
         default: Date.now,

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
 import MobileHeader from "../../components/MobileHeader";
-import { Search, Plus, Edit, Trash2, X, Upload, Eye, ChevronDown, ChevronLeft } from "lucide-react";
+import { Search, Plus, Edit, Trash2, X, Upload, Eye, EyeOff, ChevronDown, ChevronLeft, QrCode, Download } from "lucide-react";
 import { Country, State, City } from 'country-state-city';
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -36,13 +36,14 @@ export default function ManageBusinessPage() {
     const [imagePreview, setImagePreview] = useState(null);
     const [previewImageUrl, setPreviewImageUrl] = useState(null);
     const [viewBusiness, setViewBusiness] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
 
     const [formData, setFormData] = useState({
         name: "",
         userName: "",
         mobileNumber: "",
         email: "",
-        country: "",
+        country: "IN",
         state: "",
         city: "",
         address: "",
@@ -120,6 +121,10 @@ export default function ManageBusinessPage() {
         } else if (formData.mobileNumber.length !== 10) {
             newErrors.mobileNumber = "Must be 10 digits";
         }
+        if (!formData.category) newErrors.category = "Required";
+        if (!formData.state) newErrors.state = "Required";
+        if (!formData.city) newErrors.city = "Required";
+        if (!editBusinessId && !formData.password?.trim()) newErrors.password = "Required";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -164,7 +169,7 @@ export default function ManageBusinessPage() {
         setEditBusinessId(null);
         setImagePreview(null);
         setFormData({
-            name: "", userName: "", mobileNumber: "", email: "", country: "",
+            name: "", userName: "", mobileNumber: "", email: "", country: "IN",
             state: "", city: "", address: "", password: "", category: "", logo: null, countryCode: "+91"
         });
         setErrors({});
@@ -298,6 +303,7 @@ export default function ManageBusinessPage() {
                                                     <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Image</th>
                                                     <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Business Name</th>
                                                     <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Username</th>
+                                                    <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">QR</th>
                                                     <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Actions</th>
                                                 </tr>
                                             </thead>
@@ -313,6 +319,15 @@ export default function ManageBusinessPage() {
                                                             </td>
                                                             <td className="px-6 py-4 text-gray-700 font-bold whitespace-nowrap">{biz.name}</td>
                                                             <td className="px-6 py-4 text-gray-500 font-medium">{biz.userName || 'N/A'}</td>
+                                                            <td className="px-6 py-4 text-center">
+                                                                {biz.qrCode ? (
+                                                                    <button onClick={() => window.open(biz.qrCode, '_blank')} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Download QR">
+                                                                        <QrCode size={18} />
+                                                                    </button>
+                                                                ) : (
+                                                                    <span className="text-gray-300 text-xs font-bold uppercase">N/A</span>
+                                                                )}
+                                                            </td>
                                                             <td className="px-6 py-4 text-center">
                                                                 <div className="flex items-center justify-center space-x-2">
                                                                     <button onClick={() => handleViewBusiness(biz)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center space-x-1 group">
@@ -346,23 +361,117 @@ export default function ManageBusinessPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="md:col-span-1">
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">Business Name*</label>
-                                            <input id="name" type="text" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                                            <input id="name" type="text" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20" />
                                             {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                                         </div>
                                         <div className="md:col-span-1">
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">Username*</label>
-                                            <input id="userName" type="text" value={formData.userName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                                            <input id="userName" type="text" value={formData.userName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20" />
                                             {errors.userName && <p className="text-red-500 text-xs mt-1">{errors.userName}</p>}
                                         </div>
                                         <div className="md:col-span-1">
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">Email*</label>
-                                            <input id="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                                            <input id="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20" />
                                             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                                         </div>
                                         <div className="md:col-span-1">
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">Mobile*</label>
-                                            <input id="mobileNumber" type="text" value={formData.mobileNumber} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="10 digits" />
+                                            <div className="flex space-x-2">
+                                                <select
+                                                    id="countryCode"
+                                                    value={formData.countryCode}
+                                                    onChange={handleInputChange}
+                                                    className="w-[100px] px-3 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20 font-semibold text-gray-700"
+                                                >
+                                                    <option value="+91">+91 (IN)</option>
+                                                    <option value="+1">+1 (US)</option>
+                                                    <option value="+44">+44 (UK)</option>
+                                                    <option value="+971">+971 (UAE)</option>
+                                                    <option value="+61">+61 (AU)</option>
+                                                </select>
+                                                <input
+                                                    id="mobileNumber"
+                                                    type="text"
+                                                    value={formData.mobileNumber}
+                                                    onChange={handleInputChange}
+                                                    className="w-full flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20 text-gray-700 min-w-0"
+                                                    placeholder="10 digits"
+                                                />
+                                            </div>
                                             {errors.mobileNumber && <p className="text-red-500 text-xs mt-1">{errors.mobileNumber}</p>}
+                                        </div>
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Password{!editBusinessId && '*'}</label>
+                                            <div className="relative">
+                                                <input
+                                                    id="password"
+                                                    type={showPassword ? "text" : "password"}
+                                                    value={formData.password}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blacks-500/20 text-gray-700 pr-12"
+                                                    placeholder={editBusinessId ? "Leave blank to keep current" : "Set login password"}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                                >
+                                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                                </button>
+                                            </div>
+                                            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                                        </div>
+
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">State*</label>
+                                            <select
+                                                id="state"
+                                                value={formData.state}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setFormData(prev => ({ ...prev, state: val, city: "" }));
+                                                }}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20 font-semibold text-gray-700"
+                                            >
+                                                <option value="">Select State</option>
+                                                {State.getStatesOfCountry('IN').map(state => (
+                                                    <option key={state.isoCode} value={state.name}>{state.name}</option>
+                                                ))}
+                                            </select>
+                                            {errors.state && <p className="text-red-500 text-xs mt-1">{errors.state}</p>}
+                                        </div>
+
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">City*</label>
+                                            <select
+                                                id="city"
+                                                value={formData.city}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20 font-semibold text-gray-700"
+                                                disabled={!formData.state}
+                                            >
+                                                <option value="">Select City</option>
+                                                {formData.state && City.getCitiesOfState('IN', State.getStatesOfCountry('IN').find(s => s.name === formData.state)?.isoCode || "").map(city => (
+                                                    <option key={city.name} value={city.name}>{city.name}</option>
+                                                ))}
+                                            </select>
+                                            {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                                        </div>
+
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Business Category*</label>
+                                            <select
+                                                id="category"
+                                                value={formData.category}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20 font-bold text-gray-700"
+                                            >
+                                                <option value="">Select Category</option>
+                                                {categories.map(cat => (
+                                                    <option key={cat._id} value={cat._id}>{cat.name}</option>
+                                                ))}
+                                            </select>
+                                            {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
                                         </div>
 
                                         <div className="md:col-span-2">
@@ -374,7 +483,7 @@ export default function ManageBusinessPage() {
                                                     ) : formData.logo && typeof formData.logo === 'string' ? (
                                                         <img src={formData.logo} alt="Current" className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <Upload className="text-gray-300 group-hover:text-blue-400 transition-colors" size={28} />
+                                                        <Upload className="text-black-300 group-hover:text-blue-400 transition-colors" size={28} />
                                                     )}
                                                     <input
                                                         id="logo"
@@ -385,8 +494,8 @@ export default function ManageBusinessPage() {
                                                     />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="text-sm text-gray-500 mb-2 font-medium">Click to upload or drag and drop</p>
-                                                    <p className="text-xs text-gray-400">SVG, PNG, JPG or GIF (max. 800x800px)</p>
+                                                    <p className="text-sm text-black-500 mb-2 font-medium">Click to upload or drag and drop</p>
+                                                    <p className="text-xs text-black-400">SVG, PNG, JPG or GIF (max. 800x800px)</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -418,7 +527,7 @@ export default function ManageBusinessPage() {
                             <button onClick={() => setViewBusiness(null)}><X size={24} className="text-gray-400" /></button>
                         </div>
                         <div className="mb-8 text-center">
-                            <div className="w-32 h-32 mx-auto rounded-3xl overflow-hidden border-4 border-gray-50 shadow-sm bg-gray-50 mb-4 group relative">
+                            <div className="w-32 h-32 mx-auto rounded-3xl overflow-hidden border-4 border-black-50 shadow-sm bg-gray-50 mb-4 group relative">
                                 {viewBusiness.logo ? (
                                     <img src={viewBusiness.logo} alt={viewBusiness.name} className="w-full h-full object-cover" />
                                 ) : (
@@ -429,12 +538,31 @@ export default function ManageBusinessPage() {
                             </div>
                             <h3 className="text-xl font-bold text-gray-800">{viewBusiness.name}</h3>
                             <p className="text-sm text-gray-500 font-medium">Business Identity</p>
+
+                            {viewBusiness.qrCode && (
+                                <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100 inline-block">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Business QR Code</p>
+                                    <img src={viewBusiness.qrCode} alt="QR Code" className="w-40 h-40 mx-auto rounded-xl shadow-sm border border-white" />
+                                    <a
+                                        href={viewBusiness.qrCode}
+                                        download={`QR_${viewBusiness.slug}.png`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-4 flex items-center justify-center space-x-2 text-blue-600 font-bold text-sm hover:underline"
+                                    >
+                                        <Download size={14} />
+                                        <span>Download QR</span>
+                                    </a>
+                                </div>
+                            )}
                         </div>
                         <div className="space-y-4">
                             <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Name:</strong> <span className="text-gray-800 font-medium">{viewBusiness.name}</span></p>
                             <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Username:</strong> <span className="text-gray-800 font-medium">{viewBusiness.userName}</span></p>
                             <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Email:</strong> <span className="text-gray-800 font-medium">{viewBusiness.email}</span></p>
                             <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Phone:</strong> <span className="text-gray-800 font-medium">{viewBusiness.mobileNumber}</span></p>
+                            <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">State:</strong> <span className="text-gray-800 font-medium">{viewBusiness.state || 'N/A'}</span></p>
+                            <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">City:</strong> <span className="text-gray-800 font-medium">{viewBusiness.city || 'N/A'}</span></p>
                         </div>
                     </div>
                 </div>

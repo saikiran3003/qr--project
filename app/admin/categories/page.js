@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
 import MobileHeader from "../../components/MobileHeader";
-import { Search, Plus, Edit, Trash2, ChevronLeft } from "lucide-react";
+import { Search, Plus, Edit,ImageIcon , Trash2, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import Swal from "sweetalert2";
 
@@ -44,6 +44,10 @@ export default function CategoriesPage() {
                         <label class="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
                         <input id="cat-name" class="swal2-input !m-0 !w-full border-gray-200 rounded-xl" placeholder="e.g. Italian">
                     </div>
+                    <div class="text-left">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Category Image</label>
+                        <input id="cat-image" type="file" accept="image/*" class="swal2-file !m-0 !w-full border-gray-200 rounded-xl">
+                    </div>
                 </div>
             `,
             showCancelButton: true,
@@ -53,16 +57,23 @@ export default function CategoriesPage() {
             showLoaderOnConfirm: true,
             preConfirm: async () => {
                 const name = document.getElementById('cat-name').value;
+                const imageFile = document.getElementById('cat-image').files[0];
                 if (!name || name.trim() === "") {
                     Swal.showValidationMessage('Category name is required');
                     return false;
                 }
                 const slug = name.trim().toLowerCase().replace(/\s+/g, '-');
+
+                const formData = new FormData();
+                formData.append('name', name.trim());
+                formData.append('slug', slug);
+                formData.append('status', 'true');
+                if (imageFile) formData.append('image', imageFile);
+
                 try {
                     const res = await fetch("/api/categories", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name: name.trim(), slug, status: true }),
+                        body: formData,
                     });
                     if (!res.ok) throw new Error("Failed to add category");
                     return await res.json();
@@ -89,10 +100,15 @@ export default function CategoriesPage() {
         Swal.fire({
             title: "Edit Category",
             html: `
-                <div class="space-y-4 pt-4">
-                    <div class="text-left">
+                <div class="space-y-4 pt-4 text-left">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
                         <input id="cat-edit-name" class="swal2-input !m-0 !w-full border-gray-200 rounded-xl" value="${category.name}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Update Image (Optional)</label>
+                        <input id="cat-edit-image" type="file" accept="image/*" class="swal2-file !m-0 !w-full border-gray-200 rounded-xl">
+                        ${category.image ? `<div class="mt-2"><img src="${category.image}" class="h-20 w-auto rounded-lg shadow-sm border border-gray-100" /></div>` : ''}
                     </div>
                 </div>
             `,
@@ -103,16 +119,22 @@ export default function CategoriesPage() {
             showLoaderOnConfirm: true,
             preConfirm: async () => {
                 const name = document.getElementById('cat-edit-name').value;
+                const imageFile = document.getElementById('cat-edit-image').files[0];
                 if (!name || name.trim() === "") {
                     Swal.showValidationMessage('Category name is required');
                     return false;
                 }
                 const slug = name.trim().toLowerCase().replace(/\s+/g, '-');
+
+                const formData = new FormData();
+                formData.append('name', name.trim());
+                formData.append('slug', slug);
+                if (imageFile) formData.append('image', imageFile);
+
                 try {
                     const res = await fetch(`/api/categories/${category._id}`, {
                         method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name: name.trim(), slug }),
+                        body: formData,
                     });
                     if (!res.ok) throw new Error("Failed to update category");
                     return await res.json();
@@ -158,19 +180,20 @@ export default function CategoriesPage() {
                     return false;
                 }
             }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                syncCategories();
-                window.dispatchEvent(new Event("categoriesUpdated"));
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "Category has been deleted.",
-                    icon: "success",
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            }
-        });
+        })
+            .then((result) => {
+                if (result.isConfirmed) {
+                    syncCategories();
+                    window.dispatchEvent(new Event("categoriesUpdated"));
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Category has been deleted.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
     };
 
     if (loading) return null;
@@ -193,8 +216,8 @@ export default function CategoriesPage() {
                                     <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                                 </Link>
                                 <div>
-                                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Categories</h1>
-                                    <p className="text-gray-500 mt-1 text-sm sm:text-base">Manage your menu categories here.</p>
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Master Categories</h1>
+                                    <p className="text-gray-500 mt-1 text-sm sm:text-base">Manage platform-level categories here.</p>
                                 </div>
                             </div>
                             <button
@@ -202,7 +225,7 @@ export default function CategoriesPage() {
                                 className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 w-full sm:w-auto"
                             >
                                 <Plus size={20} />
-                                <span>Add New Category</span>
+                                <span>Add New Master Category</span>
                             </button>
                         </header>
 
@@ -219,10 +242,11 @@ export default function CategoriesPage() {
 
                         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse min-w-[600px]">
+                                <table className="w-full text-left border-collapse min-w-[700px]">
                                     <thead>
                                         <tr className="bg-gray-50 border-b border-gray-100">
                                             <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">ID</th>
+                                            <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Image</th>
                                             <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Category Name</th>
                                             <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider">Slug</th>
                                             <th className="px-6 py-4 text-sm font-bold text-gray-600 uppercase tracking-wider text-center">Status</th>
@@ -234,6 +258,15 @@ export default function CategoriesPage() {
                                             filteredCategories.map((cat, index) => (
                                                 <tr key={cat._id} className="hover:bg-gray-50 transition-colors">
                                                     <td className="px-6 py-4 text-gray-700 font-medium text-center">{index + 1}</td>
+                                                    <td className="px-6 py-4">
+                                                        {cat.image ? (
+                                                            <img src={cat.image} className="h-12 w-12 object-cover rounded-xl shadow-sm border border-gray-50" />
+                                                        ) : (
+                                                            <div className="h-12 w-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
+                                                                <ImageIcon size={20} />
+                                                            </div>
+                                                        )}
+                                                    </td>
                                                     <td className="px-6 py-4">
                                                         <span className="text-gray-700 font-bold whitespace-nowrap">{cat.name}</span>
                                                     </td>

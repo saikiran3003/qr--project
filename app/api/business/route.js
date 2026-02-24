@@ -1,8 +1,9 @@
 import dbConnect from '@/lib/db';
 import Business from '@/models/Business';
-import Category from '@/models/Category';
+import MasterCategory from '@/models/MasterCategory';
 import cloudinary from '@/lib/cloudinary';
 import bcrypt from 'bcryptjs';
+import QRCode from 'qrcode';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -53,7 +54,7 @@ export async function POST(req) {
         const arrayBuffer = await logoFile.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        const uploadResponse = await new Promise((resolve, reject) => {
+        const logoUploadResponse = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
                 { folder: 'qr-menu-logos' },
                 (error, result) => {
@@ -62,6 +63,27 @@ export async function POST(req) {
                 }
             );
             uploadStream.end(buffer);
+        });
+
+        // Generate QR Code
+        const host = req.headers.get('host') || 'localhost:3000';
+        const protocol = req.headers.get('x-forwarded-proto') || 'http';
+        const businessUrl = `${protocol}://${host}/b/${slug}`;
+
+        const qrCodeDataUrl = await QRCode.toDataURL(businessUrl, {
+            errorCorrectionLevel: 'H',
+            margin: 1,
+            width: 500,
+            color: {
+                dark: '#000000',
+                light: '#ffffff',
+            },
+        });
+
+        // Upload QR Code to Cloudinary
+        const qrUploadResponse = await cloudinary.uploader.upload(qrCodeDataUrl, {
+            folder: 'qr-menu-qrcodes',
+            public_id: `qr_${slug}`,
         });
 
         const business = await Business.create({
@@ -75,7 +97,8 @@ export async function POST(req) {
             city,
             address,
             password: hashedPassword,
-            logo: uploadResponse.secure_url,
+            logo: logoUploadResponse.secure_url,
+            qrCode: qrUploadResponse.secure_url,
             category: categoryId,
             status: true
         });

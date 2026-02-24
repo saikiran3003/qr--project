@@ -2,6 +2,7 @@ import dbConnect from '@/lib/db';
 import Business from '@/models/Business';
 import cloudinary from '@/lib/cloudinary';
 import bcrypt from 'bcryptjs';
+import QRCode from 'qrcode';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req, { params }) {
@@ -23,9 +24,17 @@ export async function PUT(req, { params }) {
         const logoFile = formData.get('logo');
 
         const updateData = {};
+        let slugChanged = false;
+        let newSlug = '';
+
         if (name) {
             updateData.name = name;
-            updateData.slug = name.trim().toLowerCase().replace(/\s+/g, '-');
+            newSlug = name.trim().toLowerCase().replace(/\s+/g, '-');
+            const currentBusiness = await Business.findById(id);
+            if (currentBusiness && currentBusiness.slug !== newSlug) {
+                updateData.slug = newSlug;
+                slugChanged = true;
+            }
         }
         if (userName) updateData.userName = userName;
         if (mobileNumber) updateData.mobileNumber = mobileNumber;
@@ -43,20 +52,44 @@ export async function PUT(req, { params }) {
 
         // Handle logo update if a new file is provided
         if (logoFile && typeof logoFile !== 'string') {
-            const arrayBuffer = await logoFile.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
+            const arrayBuffer = logoFile.arrayBuffer ? await logoFile.arrayBuffer() : null;
+            if (arrayBuffer) {
+                const buffer = Buffer.from(arrayBuffer);
+                const logoUploadResponse = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        { folder: 'qr-menu-logos' },
+                        (error, result) => {
+                            if (error) reject(error);
+                            else resolve(result);
+                        }
+                    );
+                    uploadStream.end(buffer);
+                });
+                updateData.logo = logoUploadResponse.secure_url;
+            }
+        }
 
-            const uploadResponse = await new Promise((resolve, reject) => {
-                const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: 'qr-menu-logos' },
-                    (error, result) => {
-                        if (error) reject(error);
-                        else resolve(result);
-                    }
-                );
-                uploadStream.end(buffer);
-            });
-            updateData.logo = uploadResponse.secure_url;
+        // Regenerate QR Code if slug changed
+        if (slugChanged || (!slugChanged && name)) {
+            const host = req.headers.get('host') || 'localhost:3000';
+            const protocol = req.headers.get('x-forwarded-proto') || 'http';
+            const finalSlug = updateData.slug || (await Business.findById(id))?.slug;
+
+            if (finalSlug) {
+                const businessUrl = `${protocol}://${host}/b/${finalSlug}`;
+                const qrCodeDataUrl = await QRCode.toDataURL(businessUrl, {
+                    errorCorrectionLevel: 'H',
+                    margin: 1,
+                    width: 500,
+                    color: { dark: '#000000', light: '#ffffff' },
+                });
+                const qrUploadResponse = await cloudinary.uploader.upload(qrCodeDataUrl, {
+                    folder: 'qr-menu-qrcodes',
+                    public_id: `qr_${finalSlug}`,
+                    overwrite: true,
+                });
+                updateData.qrCode = qrUploadResponse.secure_url;
+            }
         }
 
         const business = await Business.findByIdAndUpdate(id, updateData, { new: true });
