@@ -1,6 +1,6 @@
 import dbConnect from '@/lib/db';
 import Business from '@/models/Business';
-import Category from '@/models/BusinessCategory';
+import MasterCategory from '@/models/MasterCategory';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -8,7 +8,7 @@ export async function GET() {
         await dbConnect();
 
         const [totalCategories, viewStats] = await Promise.all([
-            Category.countDocuments(),
+            MasterCategory.countDocuments({ status: true }),
             Business.aggregate([
                 {
                     $group: {

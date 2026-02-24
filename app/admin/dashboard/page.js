@@ -63,7 +63,11 @@ export default function DashboardPage() {
         };
 
         window.addEventListener("categoriesUpdated", handleUpdate);
-        return () => window.removeEventListener("categoriesUpdated", handleUpdate);
+        window.addEventListener("storage", handleUpdate);
+        return () => {
+            window.removeEventListener("categoriesUpdated", handleUpdate);
+            window.removeEventListener("storage", handleUpdate);
+        };
     }, []);
 
     if (loading) return null;

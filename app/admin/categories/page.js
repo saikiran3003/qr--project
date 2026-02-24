@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
 import MobileHeader from "../../components/MobileHeader";
-import { Search, Plus, Edit,ImageIcon , Trash2, ChevronLeft } from "lucide-react";
+import { Search, Plus, Edit, ImageIcon, Trash2, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import Swal from "sweetalert2";
 
@@ -85,6 +85,7 @@ export default function CategoriesPage() {
             if (result.isConfirmed) {
                 syncCategories();
                 window.dispatchEvent(new Event("categoriesUpdated"));
+                localStorage.setItem("categories_sync", Date.now());
                 Swal.fire({
                     title: "Added!",
                     text: "Category has been added successfully.",
@@ -146,6 +147,7 @@ export default function CategoriesPage() {
             if (result.isConfirmed) {
                 syncCategories();
                 window.dispatchEvent(new Event("categoriesUpdated"));
+                localStorage.setItem("categories_sync", Date.now());
                 Swal.fire({
                     title: "Updated!",
                     text: "Category has been updated successfully.",
@@ -185,6 +187,7 @@ export default function CategoriesPage() {
                 if (result.isConfirmed) {
                     syncCategories();
                     window.dispatchEvent(new Event("categoriesUpdated"));
+                    localStorage.setItem("categories_sync", Date.now());
                     Swal.fire({
                         title: "Deleted!",
                         text: "Category has been deleted.",

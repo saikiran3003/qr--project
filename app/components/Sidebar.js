@@ -17,8 +17,8 @@ export default function Sidebar({ isOpen, onClose }) {
         }
     }, [pathname]);
 
-    const handleLogout = () => {
-        Swal.fire({
+    const handleLogout = async () => {
+        const result = await Swal.fire({
             title: "Logout",
             text: "Are you sure you want to logout?",
             icon: "question",
@@ -26,13 +26,32 @@ export default function Sidebar({ isOpen, onClose }) {
             confirmButtonColor: "#2563eb",
             cancelButtonColor: "#6b7280",
             confirmButtonText: "Yes, logout"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Clear any stored auth
-                localStorage.removeItem('adminToken');
-                router.push('/admin/login');
-            }
         });
+
+        if (result.isConfirmed) {
+            try {
+                const res = await fetch("/api/admin/logout", { method: "POST" });
+                if (res.ok) {
+                    localStorage.removeItem('adminToken');
+                    sessionStorage.removeItem("isLoggedIn");
+
+                    await Swal.fire({
+                        title: "Logout Successful",
+                        text: "You have been logged out.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    router.push('/admin/login');
+                } else {
+                    throw new Error("Logout failed");
+                }
+            } catch (error) {
+                console.error("Logout error:", error);
+                Swal.fire("Error", "Logout failed. Please try again.", "error");
+            }
+        }
     };
 
     const navItems = [

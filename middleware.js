@@ -31,7 +31,14 @@ export function middleware(request) {
         }
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+
+    // Prevent caching for admin routes
+    if (isAdminPath) {
+        response.headers.set('Cache-Control', 'no-store, max-age=0, must-revalidate');
+    }
+
+    return response;
 }
 
 export const config = {
