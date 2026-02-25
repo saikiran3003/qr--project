@@ -19,14 +19,17 @@ export default function ShopSubCategoriesPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
-        const id = sessionStorage.getItem("businessId");
-        if (!id) {
-            router.push("/shop/login");
-            return;
-        }
-        setBusinessId(id);
-        fetchCategories(id);
-        fetchSubCategories(id);
+        const loadInitialData = async () => {
+            const id = sessionStorage.getItem("businessId");
+            if (!id) {
+                router.push("/shop/login");
+                return;
+            }
+            setBusinessId(id);
+            await Promise.all([fetchCategories(id), fetchSubCategories(id)]);
+            setLoading(false);
+        };
+        loadInitialData();
     }, []);
 
     const fetchCategories = async (bid) => {
@@ -181,7 +184,7 @@ export default function ShopSubCategoriesPage() {
         return matchesSearch && matchesCategory;
     });
 
-    if (loading) return null;
+    // Removed: if (loading) return null; // Fast transition feel
 
     return (
         <div className="flex min-h-screen bg-gray-50 overflow-x-hidden relative">
@@ -248,7 +251,16 @@ export default function ShopSubCategoriesPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {filteredSubCategories.length > 0 ? (
+                                        {loading ? (
+                                            <tr>
+                                                <td colSpan="4" className="px-8 py-20 text-center">
+                                                    <div className="flex flex-col items-center justify-center space-y-4">
+                                                        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                                                        <p className="text-gray-400 font-bold animate-pulse uppercase tracking-widest text-xs">Loading Sub-Categories...</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ) : filteredSubCategories.length > 0 ? (
                                             filteredSubCategories.map((sub, index) => (
                                                 <tr key={sub._id} className="hover:bg-gray-50/50 transition-colors group">
                                                     <td className="px-8 py-6 text-gray-400 font-bold text-center">{index + 1}</td>

@@ -43,7 +43,11 @@ export default function ShopProductsPage() {
             return;
         }
         setBusinessId(id);
-        fetchInitialData(id);
+        const loadInitialData = async () => {
+            await fetchInitialData(id);
+            setLoading(false);
+        };
+        loadInitialData();
     }, []);
 
     const fetchInitialData = async (bid) => {
@@ -207,7 +211,7 @@ export default function ShopProductsPage() {
         prod.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) return null;
+    // Removed: if (loading) return null; // Show layout immediately for faster response
 
     return (
         <div className="flex min-h-screen bg-gray-50 overflow-x-hidden relative">
@@ -263,7 +267,16 @@ export default function ShopProductsPage() {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-50">
-                                                {filteredProducts.length > 0 ? (
+                                                {loading ? (
+                                                    <tr>
+                                                        <td colSpan="4" className="px-8 py-20 text-center">
+                                                            <div className="flex flex-col items-center justify-center space-y-4">
+                                                                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                                                                <p className="text-gray-400 font-bold animate-pulse uppercase tracking-widest text-xs">Loading Products...</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ) : filteredProducts.length > 0 ? (
                                                     filteredProducts.map((prod) => (
                                                         <tr key={prod._id} className="hover:bg-gray-50/50 transition-colors">
                                                             <td className="px-8 py-6">
