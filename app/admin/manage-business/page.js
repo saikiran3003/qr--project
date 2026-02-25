@@ -240,9 +240,11 @@ export default function ManageBusinessPage() {
     };
 
     useEffect(() => {
-        syncBusinesses();
-        fetchCategories();
-        setLoading(false);
+        const loadInitialData = async () => {
+            await Promise.all([syncBusinesses(), fetchCategories()]);
+            setLoading(false);
+        };
+        loadInitialData();
 
         const handleClickOutside = (e) => {
             if (!e.target.closest('#country-container')) setShowCountrySuggestions(false);
@@ -408,7 +410,7 @@ export default function ManageBusinessPage() {
         });
     };
 
-    if (loading) return null;
+    // Removed: if (loading) return null; // Fast transition feel
 
     const filteredBusinesses = businesses.filter(biz => {
         const matchesSearch = biz.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -479,7 +481,16 @@ export default function ManageBusinessPage() {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-50">
-                                                {filteredBusinesses.length > 0 ? (
+                                                {loading ? (
+                                                    <tr>
+                                                        <td colSpan="6" className="px-6 py-20 text-center">
+                                                            <div className="flex flex-col items-center justify-center space-y-4">
+                                                                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                                                <p className="text-gray-500 font-bold animate-pulse uppercase tracking-widest text-xs">Loading Businesses...</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ) : filteredBusinesses.length > 0 ? (
                                                     filteredBusinesses.map((biz, index) => (
                                                         <tr key={biz._id} className="hover:bg-gray-50 transition-colors">
                                                             <td className="px-6 py-4 text-gray-700 font-medium text-center">{index + 1}</td>
@@ -512,7 +523,7 @@ export default function ManageBusinessPage() {
                                                         </tr>
                                                     ))
                                                 ) : (
-                                                    <tr><td colSpan="5" className="px-6 py-10 text-center text-gray-500">No businesses found.</td></tr>
+                                                    <tr><td colSpan="6" className="px-6 py-10 text-center text-gray-500 font-bold uppercase tracking-widest text-xs">No businesses found.</td></tr>
                                                 )}
                                             </tbody>
                                         </table>

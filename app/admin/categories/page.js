@@ -28,8 +28,11 @@ export default function CategoriesPage() {
     };
 
     useEffect(() => {
-        syncCategories();
-        setLoading(false);
+        const loadInitialData = async () => {
+            await syncCategories();
+            setLoading(false);
+        };
+        loadInitialData();
 
         window.addEventListener("categoriesUpdated", syncCategories);
         return () => window.removeEventListener("categoriesUpdated", syncCategories);
@@ -199,7 +202,7 @@ export default function CategoriesPage() {
             });
     };
 
-    if (loading) return null;
+    // Removed: if (loading) return null; // Show layout immediately for faster feel
 
     const filteredCategories = categories.filter(cat =>
         cat.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -257,7 +260,16 @@ export default function CategoriesPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {filteredCategories.length > 0 ? (
+                                        {loading ? (
+                                            <tr>
+                                                <td colSpan="6" className="px-6 py-20 text-center">
+                                                    <div className="flex flex-col items-center justify-center space-y-4">
+                                                        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                                        <p className="text-gray-500 font-bold animate-pulse uppercase tracking-widest text-xs">Loading Categories...</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ) : filteredCategories.length > 0 ? (
                                             filteredCategories.map((cat, index) => (
                                                 <tr key={cat._id} className="hover:bg-gray-50 transition-colors">
                                                     <td className="px-6 py-4 text-gray-700 font-medium text-center">{index + 1}</td>
@@ -299,7 +311,7 @@ export default function CategoriesPage() {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="5" className="px-6 py-10 text-center text-gray-500 font-medium">
+                                                <td colSpan="6" className="px-6 py-10 text-center text-gray-500 font-medium font-bold uppercase tracking-wider text-xs">
                                                     No categories found matching your search.
                                                 </td>
                                             </tr>

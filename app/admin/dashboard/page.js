@@ -70,7 +70,7 @@ export default function DashboardPage() {
         };
     }, []);
 
-    if (loading) return null;
+    // Removed: if (loading) return null; // Show layout immediately for faster response
 
     return (
         <div className="flex min-h-screen bg-gray-50 overflow-x-hidden relative">
@@ -86,17 +86,29 @@ export default function DashboardPage() {
                         </header>
 
                         <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10">
-                            {stats.map((stat, index) => (
-                                <div key={index} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4">
-                                    <div className={`p-3 rounded-xl ${stat.color}`}>
-                                        <stat.icon size={24} />
+                            {loading ? (
+                                [1, 2].map((i) => (
+                                    <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 animate-pulse">
+                                        <div className="p-6 bg-gray-100 rounded-xl"></div>
+                                        <div className="space-y-2 flex-1">
+                                            <div className="h-4 bg-gray-100 rounded w-1/4"></div>
+                                            <div className="h-8 bg-gray-100 rounded w-1/2"></div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
-                                        <h3 className="text-2xl font-bold text-gray-800">{stat.value}</h3>
+                                ))
+                            ) : (
+                                stats.map((stat, index) => (
+                                    <div key={index} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 hover:shadow-md transition-shadow">
+                                        <div className={`p-3 rounded-xl ${stat.color}`}>
+                                            <stat.icon size={24} />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
+                                            <h3 className="text-2xl font-bold text-gray-800">{stat.value}</h3>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </section>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -104,12 +116,20 @@ export default function DashboardPage() {
                                 <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
                                     <h2 className="text-xl font-bold text-gray-800 mb-6">Manage Categories</h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {categories.map((cat) => (
-                                            <div key={cat._id} className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between">
-                                                <span className="font-medium text-gray-700">{cat.name}</span>
-                                                <div className={`w-2 h-2 rounded-full ${cat.status ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                            </div>
-                                        ))}
+                                        {loading ? (
+                                            [1, 2, 3].map((i) => (
+                                                <div key={i} className="p-4 bg-gray-50 rounded-xl border border-gray-50 h-[52px] animate-pulse"></div>
+                                            ))
+                                        ) : categories.length > 0 ? (
+                                            categories.map((cat) => (
+                                                <div key={cat._id} className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between hover:border-blue-200 transition-colors">
+                                                    <span className="font-medium text-gray-700">{cat.name}</span>
+                                                    <div className={`w-2 h-2 rounded-full ${cat.status ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-400 text-sm font-bold uppercase tracking-widest text-center col-span-full py-4">No categories yet</p>
+                                        )}
                                     </div>
                                 </div>
                             </section>
