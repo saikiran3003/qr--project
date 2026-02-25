@@ -727,15 +727,15 @@ export default function ManageBusinessPage() {
 
                             {viewBusiness.qrCode && (
                                 <div className="mt-8 flex flex-col items-center">
-                                    <div className="w-full max-w-sm sm:h-[600px] flex flex-col">
+                                    <div className="w-full max-w-[400px] mx-auto flex flex-col items-center">
                                         <div
                                             id="admin-qr-card"
                                             ref={cardRef}
-                                            className="relative p-[3px] rounded-[10px] shadow-xl overflow-hidden flex-1 flex flex-col"
+                                            className="relative p-[3px] rounded-[10px] shadow-xl overflow-hidden flex flex-col w-full"
                                             style={{
                                                 background: 'linear-gradient(to bottom right, #f87171, #fbbf24, #4ade80, #60a5fa, #c084fc)',
-                                                width: '400px',
-                                                height: '600px'
+                                                aspectRatio: '2/3',
+                                                maxWidth: '400px'
                                             }}
                                         >
                                             <div className="rounded-[6px] p-4 sm:p-5 text-center flex flex-col items-center relative flex-1" style={{ backgroundColor: '#ffffff', width: '100%' }}>

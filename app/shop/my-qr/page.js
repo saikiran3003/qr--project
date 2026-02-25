@@ -199,16 +199,16 @@ export default function MyQrPage() {
             <main className="flex-1 lg:ml-64 min-w-0">
                 <ShopMobileHeader onToggleSidebar={() => setIsSidebarOpen(true)} />
                 <div className="p-4 sm:p-6 lg:p-10 flex items-center justify-center min-h-[calc(100vh-64px)] lg:min-h-screen">
-                    <div className="w-full max-w-[400px] sm:h-[600px] flex flex-col">
+                    <div className="w-full max-w-[400px] flex flex-col items-center">
                         {/* Styled QR Card */}
                         <div
                             id="qr-card-design"
                             ref={cardRef}
-                            className="relative p-[5px] rounded-[10px] shadow-xl overflow-hidden h-full flex flex-col"
+                            className="relative p-[5px] rounded-[10px] shadow-xl overflow-hidden flex flex-col w-full"
                             style={{
                                 background: 'linear-gradient(to bottom right, #f87171, #fbbf24, #4ade80, #60a5fa, #c084fc)',
-                                width: '400px',
-                                height: '600px'
+                                aspectRatio: '2/3',
+                                maxWidth: '400px'
                             }}
                         >
                             <div className="rounded-[6px] p-6 text-center flex flex-col items-center relative" style={{ backgroundColor: '#ffffff', width: '100%', height: '100%', flex: '1' }}>
