@@ -97,9 +97,7 @@ export default function MyQrPage() {
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
-                    files: [file],
-                    title: business.name,
-                    text: `Check out the digital menu for ${business.name}`,
+                    files: [file]
                 });
             } else if (navigator.share) {
                 await navigator.share({

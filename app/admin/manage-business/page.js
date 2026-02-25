@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
 import MobileHeader from "../../components/MobileHeader";
-import { Search, Plus, Edit, Trash2, X, Upload, Eye, EyeOff, ChevronDown, ChevronLeft, QrCode, Download, Share2 } from "lucide-react";
+import { Search, Plus, Edit, Trash2, X, Upload, Eye, EyeOff, ChevronDown, ChevronLeft, QrCode, Download, Share2, Loader2 } from "lucide-react";
 import { Country, State, City } from 'country-state-city';
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -85,7 +85,7 @@ export default function ManageBusinessPage() {
                         innerContainer.style.flex = "1";
                         innerContainer.style.display = "flex";
                         innerContainer.style.flexDirection = "column";
-                        innerContainer.style.height = "594px";
+                        innerContainer.style.height = "590px";
                         innerContainer.style.overflow = "visible";
                     }
                 }
@@ -147,7 +147,7 @@ export default function ManageBusinessPage() {
                         innerContainer.style.flex = "1";
                         innerContainer.style.display = "flex";
                         innerContainer.style.flexDirection = "column";
-                        innerContainer.style.height = "594px";
+                        innerContainer.style.height = "590px";
                         innerContainer.style.overflow = "visible";
                     }
                 }
@@ -158,9 +158,7 @@ export default function ManageBusinessPage() {
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
-                    files: [file],
-                    title: name,
-                    text: `Check out the digital menu for ${name}`,
+                    files: [file]
                 });
             } else if (navigator.share) {
                 await navigator.share({
@@ -731,14 +729,14 @@ export default function ManageBusinessPage() {
                                         <div
                                             id="admin-qr-card"
                                             ref={cardRef}
-                                            className="relative p-[3px] rounded-[10px] shadow-xl overflow-hidden flex flex-col w-full"
+                                            className="relative p-[5px] rounded-[10px] shadow-xl overflow-hidden flex flex-col w-full"
                                             style={{
                                                 background: 'linear-gradient(to bottom right, #f87171, #fbbf24, #4ade80, #60a5fa, #c084fc)',
                                                 aspectRatio: '2/3',
                                                 maxWidth: '400px'
                                             }}
                                         >
-                                            <div className="rounded-[6px] p-4 sm:p-5 text-center flex flex-col items-center relative flex-1" style={{ backgroundColor: '#ffffff', width: '100%' }}>
+                                            <div className="rounded-[6px] p-6 text-center flex flex-col items-center relative" style={{ backgroundColor: '#ffffff', width: '100%', height: '100%', flex: '1' }}>
                                                 {/* 1. Logo (Top) */}
                                                 <div className="mb-3 mt-1 h-12 sm:h-14 flex items-center justify-center w-full px-4 text-center">
                                                     {viewBusiness.logo ? (
@@ -751,7 +749,7 @@ export default function ManageBusinessPage() {
                                                 </div>
 
                                                 {/* 2. SCAN ME */}
-                                                <h1 className="text-3xl sm:text-4xl font-[1000] tracking-tight mb-3 uppercase leading-none" style={{ color: '#000000' }}>SCAN ME</h1>
+                                                <h1 className="text-3xl sm:text-4xl font-[1000] tracking-tight mb-5 uppercase leading-none" style={{ color: '#000000' }}>SCAN ME</h1>
 
                                                 {/* 3. QR Code */}
                                                 <div className="mb-3 p-3 rounded-[10px] border flex items-center justify-center shadow-sm" style={{ backgroundColor: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.8)' }}>
@@ -801,7 +799,7 @@ export default function ManageBusinessPage() {
                                                 className="flex items-center space-x-2 px-6 py-3 bg-white text-black border-2 border-black rounded-xl hover:bg-gray-50 transition-all shadow-lg font-bold uppercase text-xs tracking-widest disabled:opacity-50"
                                             >
                                                 {isSharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
-                                                <span>{isSharing ? 'Sharing...' : 'Share Link'}</span>
+                                                <span>{isSharing ? 'Sharing...' : 'Share QR'}</span>
                                             </button>
                                         </div>
                                     </div>
