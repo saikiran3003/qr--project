@@ -39,6 +39,7 @@ export default function ManageBusinessPage() {
     const [imagePreview, setImagePreview] = useState(null);
     const [previewImageUrl, setPreviewImageUrl] = useState(null);
     const [viewBusiness, setViewBusiness] = useState(null);
+    const [viewMode, setViewMode] = useState("full"); // "full" or "qr"
     const cardRef = useRef(null);
 
     const toBase64 = async (url) => {
@@ -366,7 +367,8 @@ export default function ManageBusinessPage() {
         setErrors({});
     };
 
-    const handleViewBusiness = async (biz) => {
+    const handleViewBusiness = async (biz, mode = "full") => {
+        setViewMode(mode);
         // Convert images to base64 to ensure capture works in the preview
         const updatedBiz = { ...biz };
         if (biz.logo) updatedBiz.logo = await toBase64(biz.logo);
@@ -490,7 +492,7 @@ export default function ManageBusinessPage() {
                                                             <td className="px-6 py-4 text-gray-500 font-medium">{biz.userName || 'N/A'}</td>
                                                             <td className="px-6 py-4 text-center">
                                                                 {biz.qrCode ? (
-                                                                    <button onClick={() => window.open(biz.qrCode, '_blank')} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Download QR">
+                                                                    <button onClick={() => handleViewBusiness(biz, 'qr')} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="View Full QR Card">
                                                                         <QrCode size={18} />
                                                                     </button>
                                                                 ) : (
@@ -692,21 +694,25 @@ export default function ManageBusinessPage() {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setViewBusiness(null)}>
                     <div className="relative w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-8 overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">Business Details</h2>
+                            <h2 className="text-2xl font-bold">{viewMode === 'full' ? 'Business Details' : 'Public QR Card'}</h2>
                             <button onClick={() => setViewBusiness(null)}><X size={24} className="text-gray-400" /></button>
                         </div>
-                        <div className="mb-8 text-center">
-                            <div className="w-32 h-32 mx-auto rounded-3xl overflow-hidden border-4 border-black-50 shadow-sm bg-gray-50 mb-4 group relative">
-                                {viewBusiness.logo ? (
-                                    <img src={viewBusiness.logo} alt={viewBusiness.name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                        <Upload size={40} />
+                        <div className="mb-0 text-center">
+                            {viewMode === 'full' && (
+                                <div className="mb-8">
+                                    <div className="w-32 h-32 mx-auto rounded-3xl overflow-hidden border-4 border-black-50 shadow-sm bg-gray-50 mb-4 group relative">
+                                        {viewBusiness.logo ? (
+                                            <img src={viewBusiness.logo} alt={viewBusiness.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                <Upload size={40} />
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-800">{viewBusiness.name}</h3>
-                            <p className="text-sm text-gray-500 font-medium">Business Identity</p>
+                                    <h3 className="text-xl font-bold text-gray-800">{viewBusiness.name}</h3>
+                                    <p className="text-sm text-gray-500 font-medium">Business Identity</p>
+                                </div>
+                            )}
 
                             {viewBusiness.qrCode && (
                                 <div className="mt-8 flex flex-col items-center">
@@ -791,14 +797,16 @@ export default function ManageBusinessPage() {
                                 </div>
                             )}
 
-                            <div className="space-y-4 pt-8 border-t border-gray-100 mt-8">
-                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Name:</strong> <span className="text-gray-800 font-medium">{viewBusiness.name}</span></p>
-                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Username:</strong> <span className="text-gray-800 font-medium">{viewBusiness.userName}</span></p>
-                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Email:</strong> <span className="text-gray-800 font-medium">{viewBusiness.email}</span></p>
-                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Phone:</strong> <span className="text-gray-800 font-medium">{viewBusiness.mobileNumber}</span></p>
-                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">State:</strong> <span className="text-gray-800 font-medium">{viewBusiness.state || 'N/A'}</span></p>
-                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">City:</strong> <span className="text-gray-800 font-medium">{viewBusiness.city || 'N/A'}</span></p>
-                            </div>
+                            {viewMode === 'full' && (
+                                <div className="space-y-4 pt-8 border-t border-gray-100 mt-8">
+                                    <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Name:</strong> <span className="text-gray-800 font-medium">{viewBusiness.name}</span></p>
+                                    <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Username:</strong> <span className="text-gray-800 font-medium">{viewBusiness.userName}</span></p>
+                                    <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Email:</strong> <span className="text-gray-800 font-medium">{viewBusiness.email}</span></p>
+                                    <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Phone:</strong> <span className="text-gray-800 font-medium">{viewBusiness.mobileNumber}</span></p>
+                                    <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">State:</strong> <span className="text-gray-800 font-medium">{viewBusiness.state || 'N/A'}</span></p>
+                                    <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">City:</strong> <span className="text-gray-800 font-medium">{viewBusiness.city || 'N/A'}</span></p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, ShoppingBag, Plus, ImageIcon, Info, Share2, Heart } from "lucide-react";
+import { ChevronLeft, ShoppingBag, Plus, ImageIcon, Info, Share2 } from "lucide-react";
 import Link from "next/link";
 
 export default function ProductDetailsPage() {
@@ -62,9 +62,6 @@ export default function ProductDetailsPage() {
                 <div className="flex items-center space-x-3">
                     <button className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center text-gray-800 shadow-lg shadow-black/5 active:scale-95 transition-all">
                         <Share2 size={20} />
-                    </button>
-                    <button className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center text-pink-500 shadow-lg shadow-black/5 active:scale-95 transition-all">
-                        <Heart size={20} />
                     </button>
                 </div>
             </div>

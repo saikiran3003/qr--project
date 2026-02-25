@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Phone, MapPin, Search, ChevronRight, ImageIcon, Info, Heart, Plus } from "lucide-react";
+import { MapPin, Search, ChevronRight, ImageIcon, Info, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function BusinessLandingPage() {
@@ -76,7 +76,7 @@ export default function BusinessLandingPage() {
     };
 
     return (
-        <div className="min-h-[100dvh] bg-white pb-24">
+        <div className="min-h-[100dvh] bg-white pb-12">
             {/* Header / Hero */}
             <div className="relative h-64 bg-indigo-600 overflow-hidden">
                 {/* Background Pattern/Gradient */}
@@ -227,23 +227,6 @@ export default function BusinessLandingPage() {
                 </div>
             </div>
 
-            {/* Bottom Contact Tab */}
-            <div className="fixed bottom-0 inset-x-0 p-6 z-40 lg:max-w-7xl lg:mx-auto lg:p-10">
-                <div className="max-w-md mx-auto bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl shadow-black/10 rounded-[2.5rem] p-4 flex items-center justify-between lg:max-w-xs lg:mx-0 lg:ml-auto">
-                    <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-                            <Phone size={20} />
-                        </div>
-                        <div>
-                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Call Orders</div>
-                            <div className="text-sm font-bold text-gray-800">{business.mobileNumber}</div>
-                        </div>
-                    </div>
-                    <button className="w-12 h-12 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center hover:bg-pink-100 transition-colors">
-                        <Heart size={20} />
-                    </button>
-                </div>
-            </div>
         </div>
     );
 }
