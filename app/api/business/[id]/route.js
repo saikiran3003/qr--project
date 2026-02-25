@@ -71,13 +71,13 @@ export async function PUT(req, { params }) {
 
         // Regenerate QR Code if slug changed
         if (slugChanged || (!slugChanged && name)) {
-            // Generate QR Code with correct host and protocol for Vercel/Production
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+            // Generate QR Code with correct host and protocol
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL;
             const finalSlug = updateData.slug || (await Business.findById(id))?.slug;
             let businessUrl;
 
-            if (baseUrl && finalSlug) {
-                businessUrl = `${baseUrl.replace(/\/$/, '')}/b/${finalSlug}`;
+            if (baseUrl && baseUrl.trim() !== "" && finalSlug) {
+                businessUrl = `${baseUrl.trim().replace(/\/$/, '')}/b/${finalSlug}`;
             } else if (finalSlug) {
                 const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:3000';
                 const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');

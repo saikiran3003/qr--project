@@ -67,11 +67,12 @@ export async function POST(req) {
 
         // Generate QR Code
         // Generate QR Code with correct host and protocol for Vercel/Production
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        // Generate QR Code with correct host and protocol
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL;
         let businessUrl;
 
-        if (baseUrl) {
-            businessUrl = `${baseUrl.replace(/\/$/, '')}/b/${slug}`;
+        if (baseUrl && baseUrl.trim() !== "") {
+            businessUrl = `${baseUrl.trim().replace(/\/$/, '')}/b/${slug}`;
         } else {
             const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:3000';
             const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
