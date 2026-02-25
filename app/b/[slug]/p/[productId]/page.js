@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, ShoppingBag, Plus, ImageIcon, Star, Info, Share2, Heart } from "lucide-react";
+import { ChevronLeft, ShoppingBag, Plus, ImageIcon, Info, Share2, Heart } from "lucide-react";
 import Link from "next/link";
 
 export default function ProductDetailsPage() {
@@ -75,7 +75,7 @@ export default function ProductDetailsPage() {
                     <img
                         src={product.images[activeImage]}
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain transition-all duration-300"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-200">
@@ -119,11 +119,6 @@ export default function ProductDetailsPage() {
                             </h1>
                         </div>
                         <div className="flex flex-col items-end">
-                            <div className="flex items-center text-amber-500 bg-amber-50 px-3 py-1.5 rounded-xl">
-                                <Star size={14} fill="currentColor" />
-                                <span className="text-xs font-black ml-1">4.8</span>
-                            </div>
-                            <span className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">120+ Reviews</span>
                         </div>
                     </div>
 
@@ -172,9 +167,9 @@ export default function ProductDetailsPage() {
                                         href={`/b/${slug}/p/${rp._id}`}
                                         className="w-40 flex-shrink-0 bg-gray-50 p-3 rounded-3xl border border-gray-100 active:scale-[0.98] transition-all"
                                     >
-                                        <div className="aspect-square bg-white rounded-2xl overflow-hidden mb-3 border border-gray-50">
+                                        <div className="aspect-square rounded-2xl overflow-hidden mb-3">
                                             {rp.images?.[0] ? (
-                                                <img src={rp.images[0]} alt={rp.name} className="w-full h-full object-cover" />
+                                                <img src={rp.images[0]} alt={rp.name} className="w-full h-full object-contain duration-300 transition-all" />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-gray-200"><ImageIcon size={20} /></div>
                                             )}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Script from "next/script";
 import ShopSidebar from "../../components/ShopSidebar";
 import ShopMobileHeader from "../../components/ShopMobileHeader";
-import { User, Mail, Phone, MapPin, Save, Upload, X } from "lucide-react";
+import { User, Mail, Phone, MapPin, Save, Upload, Loader2, X } from "lucide-react";
 import { State, City } from 'country-state-city';
 import Swal from "sweetalert2";
 
@@ -249,16 +249,16 @@ export default function ShopProfilePage() {
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Full Address</label>
                                         <div className="relative">
-                                            <MapPin className="absolute left-4 top-4 text-gray-400" size={18} />
-                                            <textarea
+                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                            <input
                                                 id="address"
+                                                type="text"
                                                 ref={addressInputRef}
-                                                rows="3"
                                                 value={formData.address}
                                                 onChange={handleInputChange}
                                                 placeholder="Enter full address"
                                                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium"
-                                            ></textarea>
+                                            />
                                         </div>
                                     </div>
 
@@ -304,7 +304,10 @@ export default function ShopProfilePage() {
                                         className="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center space-x-2"
                                     >
                                         {isSubmitting ? (
-                                            <span>Saving...</span>
+                                            <>
+                                                <Loader2 size={20} className="animate-spin" />
+                                                <span>Saving...</span>
+                                            </>
                                         ) : (
                                             <>
                                                 <Save size={20} />

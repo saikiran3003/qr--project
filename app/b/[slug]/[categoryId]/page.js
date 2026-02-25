@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Search, ChevronLeft, ShoppingBag, Plus, ImageIcon, Star, Info } from "lucide-react";
+import { Search, ChevronLeft, ShoppingBag, Plus, ImageIcon, Info } from "lucide-react";
 import Link from "next/link";
 
 export default function CategoryDetailsPage() {
@@ -114,12 +114,12 @@ export default function CategoryDetailsPage() {
                             href={`/b/${slug}/p/${prod._id}`}
                             className="bg-white p-4 rounded-3xl flex items-start space-x-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-50 relative overflow-hidden group active:scale-[0.98] transition-all"
                         >
-                            <div className="w-28 h-28 rounded-[1.5rem] overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
+                            <div className="w-28 h-28 rounded-[1.5rem] overflow-hidden flex-shrink-0">
                                 {prod.images?.[0] ? (
                                     <img
                                         src={prod.images[0]}
                                         alt={prod.name}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        className="w-full h-full object-contain duration-500"
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -129,11 +129,7 @@ export default function CategoryDetailsPage() {
                             </div>
                             <div className="flex-1 py-1">
                                 <div className="flex items-start justify-between">
-                                    <h3 className="font-black text-gray-800 leading-tight pr-8 uppercase tracking-tight line-clamp-2">{prod.name}</h3>
-                                    <div className="absolute top-4 right-4 flex items-center bg-white/90 backdrop-blur-sm px-2 py-1 rounded-xl shadow-sm border border-gray-100/50 text-amber-500 z-10">
-                                        <Star size={12} fill="currentColor" />
-                                        <span className="text-[10px] font-black ml-1">4.5</span>
-                                    </div>
+                                    <h3 className="font-black text-gray-800 leading-tight uppercase tracking-tight line-clamp-2">{prod.name}</h3>
                                 </div>
                                 <p className="text-[10px] font-bold text-gray-400 mt-2 line-clamp-2 leading-relaxed">{prod.description || 'Fresh and high-quality ingredients prepared daily.'}</p>
                                 <div className="mt-4 flex items-center justify-between">
@@ -143,7 +139,7 @@ export default function CategoryDetailsPage() {
                                             <span className="text-[10px] font-bold text-gray-400 line-through">₹{prod.mrpPrice}</span>
                                         )}
                                     </div>
-                                    <button className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all">
+                                    <button className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all absolute bottom-4 right-4">
                                         <Plus size={20} />
                                     </button>
                                 </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Phone, MapPin, Search, ChevronRight, ImageIcon, Info, Heart, Star, Plus } from "lucide-react";
+import { Phone, MapPin, Search, ChevronRight, ImageIcon, Info, Heart, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function BusinessLandingPage() {
@@ -180,9 +180,9 @@ export default function BusinessLandingPage() {
                                             href={`/b/${slug}/${cat._id}`}
                                             className="bg-white p-4 rounded-3xl flex items-start space-x-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-50 relative overflow-hidden group active:scale-[0.98] transition-all lg:flex-col lg:space-x-0 lg:p-6 lg:text-center"
                                         >
-                                            <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100 lg:w-full lg:h-48 lg:mb-4">
+                                            <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden flex-shrink-0 lg:w-full lg:h-48 lg:mb-4">
                                                 {prod.images?.[0] ? (
-                                                    <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                    <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-contain duration-500" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-300">
                                                         <ImageIcon size={20} />
@@ -191,21 +191,17 @@ export default function BusinessLandingPage() {
                                             </div>
                                             <div className="flex-1 py-1 lg:w-full">
                                                 <div className="flex items-start justify-between lg:justify-center">
-                                                    <h3 className="font-bold text-gray-800 leading-tight pr-4 uppercase tracking-tight line-clamp-2 lg:pr-0 lg:text-lg">{prod.name}</h3>
-                                                    <div className="absolute top-4 right-4 flex items-center bg-white/90 backdrop-blur-sm px-2 py-1 rounded-xl shadow-sm border border-gray-100/50 text-amber-500 z-10">
-                                                        <Star size={12} fill="currentColor" />
-                                                        <span className="text-[10px] font-black ml-1">4.5</span>
-                                                    </div>
+                                                    <h3 className="font-bold text-gray-800 leading-tight uppercase tracking-tight line-clamp-2 lg:pr-0 lg:text-lg">{prod.name}</h3>
                                                 </div>
                                                 <p className="text-[10px] font-bold text-gray-400 mt-2 line-clamp-1">{prod.description || 'Details available in category'}</p>
-                                                <div className="mt-4 flex items-center justify-between">
+                                                <div className="mt-4 flex items-center justify-between lg:justify-center lg:space-x-4">
                                                     <div className="flex items-center space-x-2">
                                                         <span className="text-lg font-black text-indigo-600">₹{prod.salePrice}</span>
                                                         {prod.mrpPrice > prod.salePrice && (
                                                             <span className="text-[10px] font-bold text-gray-400 line-through">₹{prod.mrpPrice}</span>
                                                         )}
                                                     </div>
-                                                    <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                                    <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all lg:absolute lg:bottom-4 lg:right-4">
                                                         <Plus size={16} />
                                                     </div>
                                                 </div>
