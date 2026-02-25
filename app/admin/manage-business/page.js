@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
 import MobileHeader from "../../components/MobileHeader";
-import { Search, Plus, Edit, Trash2, X, Upload, Eye, EyeOff, ChevronDown, ChevronLeft, QrCode, Download } from "lucide-react";
+import { Search, Plus, Edit, Trash2, X, Upload, Eye, EyeOff, ChevronDown, ChevronLeft, QrCode, Download, Share2 } from "lucide-react";
 import { Country, State, City } from 'country-state-city';
 import Link from "next/link";
 import Swal from "sweetalert2";
+import html2canvas from "html2canvas";
 
 export default function ManageBusinessPage() {
     const router = useRouter();
@@ -17,6 +18,8 @@ export default function ManageBusinessPage() {
     const [selectedCategory, setSelectedCategory] = useState(""); // Filter state
     const [categories, setCategories] = useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
 
     // Auto-suggestion States
     const [countrySearch, setCountrySearch] = useState("");
@@ -36,6 +39,167 @@ export default function ManageBusinessPage() {
     const [imagePreview, setImagePreview] = useState(null);
     const [previewImageUrl, setPreviewImageUrl] = useState(null);
     const [viewBusiness, setViewBusiness] = useState(null);
+    const cardRef = useRef(null);
+
+    const toBase64 = async (url) => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) {
+            console.error("Base64 conversion failed", e);
+            return url;
+        }
+    };
+
+    const handleDownload = async (id, qrCode, name) => {
+        if (!cardRef.current || isDownloading) return;
+        setIsDownloading(true);
+
+        try {
+            await new Promise(r => setTimeout(r, 800));
+
+            const canvas = await html2canvas(cardRef.current, {
+                useCORS: true,
+                allowTaint: true,
+                scale: 4,
+                backgroundColor: "#ffffff",
+                logging: false,
+                onclone: (clonedDoc) => {
+                    const clonedElement = clonedDoc.getElementById('admin-qr-card');
+                    if (clonedElement) {
+                        clonedElement.style.height = "600px";
+                        clonedElement.style.width = "400px";
+                        clonedElement.style.display = "flex";
+                        clonedElement.style.flexDirection = "column";
+                        clonedElement.style.overflow = "visible";
+                    }
+                    const innerContainer = clonedDoc.querySelector('#admin-qr-card > div');
+                    if (innerContainer) {
+                        innerContainer.style.flex = "1";
+                        innerContainer.style.display = "flex";
+                        innerContainer.style.flexDirection = "column";
+                        innerContainer.style.height = "594px";
+                        innerContainer.style.overflow = "visible";
+                    }
+                }
+            });
+
+            const image = canvas.toDataURL("image/png", 1.0);
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = `QR_Card_${name}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Download failed:", error);
+            Swal.fire({
+                title: "Capture Error",
+                text: "Full card capture failed. Downloading only QR code as fallback.",
+                icon: "warning",
+                timer: 2000,
+                showConfirmButton: false
+            });
+            const link = document.createElement('a');
+            link.href = qrCode;
+            link.download = `QR_Code_${name}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    const handleShare = async (slug, name) => {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
+        const shareUrl = `${baseUrl}/b/${slug}`;
+
+        if (!cardRef.current || isSharing) return;
+        setIsSharing(true);
+
+        try {
+            await new Promise(r => setTimeout(r, 800));
+
+            const canvas = await html2canvas(cardRef.current, {
+                useCORS: true,
+                allowTaint: true,
+                scale: 4,
+                backgroundColor: "#ffffff",
+                onclone: (clonedDoc) => {
+                    const clonedElement = clonedDoc.getElementById('admin-qr-card');
+                    if (clonedElement) {
+                        clonedElement.style.height = "600px";
+                        clonedElement.style.width = "400px";
+                        clonedElement.style.display = "flex";
+                        clonedElement.style.flexDirection = "column";
+                        clonedElement.style.overflow = "visible";
+                    }
+                    const innerContainer = clonedDoc.querySelector('#admin-qr-card > div');
+                    if (innerContainer) {
+                        innerContainer.style.flex = "1";
+                        innerContainer.style.display = "flex";
+                        innerContainer.style.flexDirection = "column";
+                        innerContainer.style.height = "594px";
+                        innerContainer.style.overflow = "visible";
+                    }
+                }
+            });
+
+            const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+            const file = new File([blob], `QR_${name}.png`, { type: 'image/png' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: name,
+                    text: `Check out the digital menu for ${name}`,
+                });
+            } else if (navigator.share) {
+                await navigator.share({
+                    title: name,
+                    text: `Check out the digital menu for ${name}`,
+                    url: shareUrl
+                });
+            } else {
+                navigator.clipboard.writeText(shareUrl);
+                Swal.fire({
+                    title: "Link Copied",
+                    text: "Menu link has been copied to clipboard",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        } catch (error) {
+            console.error("Share failed:", error);
+            // Fallback
+            if (navigator.share) {
+                await navigator.share({
+                    title: name,
+                    text: `Check out the digital menu for ${name}`,
+                    url: shareUrl
+                });
+            } else {
+                navigator.clipboard.writeText(shareUrl);
+                Swal.fire({
+                    title: "Link Copied",
+                    text: "Menu link has been copied to clipboard",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        } finally {
+            setIsSharing(false);
+        }
+    };
     const [showPassword, setShowPassword] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -203,7 +367,12 @@ export default function ManageBusinessPage() {
     };
 
     const handleViewBusiness = async (biz) => {
-        setViewBusiness(biz);
+        // Convert images to base64 to ensure capture works in the preview
+        const updatedBiz = { ...biz };
+        if (biz.logo) updatedBiz.logo = await toBase64(biz.logo);
+        if (biz.qrCode) updatedBiz.qrCode = await toBase64(biz.qrCode);
+
+        setViewBusiness(updatedBiz);
         try {
             const res = await fetch(`/api/business/${biz._id}/view`, { method: "POST" });
             if (res.ok) {
@@ -540,29 +709,96 @@ export default function ManageBusinessPage() {
                             <p className="text-sm text-gray-500 font-medium">Business Identity</p>
 
                             {viewBusiness.qrCode && (
-                                <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100 inline-block">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Business QR Code</p>
-                                    <img src={viewBusiness.qrCode} alt="QR Code" className="w-40 h-40 mx-auto rounded-xl shadow-sm border border-white" />
-                                    <a
-                                        href={viewBusiness.qrCode}
-                                        download={`QR_${viewBusiness.slug}.png`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="mt-4 flex items-center justify-center space-x-2 text-blue-600 font-bold text-sm hover:underline"
-                                    >
-                                        <Download size={14} />
-                                        <span>Download QR</span>
-                                    </a>
+                                <div className="mt-8 flex flex-col items-center">
+                                    <div className="w-full max-w-sm sm:h-[600px] flex flex-col">
+                                        <div
+                                            id="admin-qr-card"
+                                            ref={cardRef}
+                                            className="relative p-[3px] rounded-[10px] shadow-xl overflow-hidden flex-1 flex flex-col"
+                                            style={{
+                                                background: 'linear-gradient(to bottom right, #f87171, #fbbf24, #4ade80, #60a5fa, #c084fc)',
+                                                width: '400px',
+                                                height: '600px'
+                                            }}
+                                        >
+                                            <div className="rounded-[6px] p-4 sm:p-5 text-center flex flex-col items-center relative flex-1" style={{ backgroundColor: '#ffffff', width: '100%' }}>
+                                                {/* 1. Logo (Top) */}
+                                                <div className="mb-3 mt-1 h-12 sm:h-14 flex items-center justify-center w-full px-4 text-center">
+                                                    {viewBusiness.logo ? (
+                                                        <img src={viewBusiness.logo} alt={viewBusiness.name} crossOrigin="anonymous" className="object-contain" style={{ maxHeight: '100%', maxWidth: '100%', height: '56px' }} />
+                                                    ) : (
+                                                        <div className="text-xl font-black uppercase tracking-tighter" style={{ color: '#1f2937' }}>
+                                                            {viewBusiness.name}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* 2. SCAN ME */}
+                                                <h1 className="text-3xl sm:text-4xl font-[1000] tracking-tight mb-3 uppercase leading-none" style={{ color: '#000000' }}>SCAN ME</h1>
+
+                                                {/* 3. QR Code */}
+                                                <div className="mb-3 p-3 rounded-[10px] border flex items-center justify-center shadow-sm" style={{ backgroundColor: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.8)' }}>
+                                                    {viewBusiness.qrCode ? (
+                                                        <img src={viewBusiness.qrCode} alt="QR Code" crossOrigin="anonymous" className="w-40 h-40 sm:w-52 sm:h-52 object-contain" />
+                                                    ) : (
+                                                        <div className="w-40 h-40 sm:w-52 sm:h-52 flex items-center justify-center bg-gray-50 rounded-lg font-bold" style={{ color: '#e5e7eb' }}>
+                                                            No QR Code
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* 4. TO VIEW OUR MENU */}
+                                                <h2 className="text-base sm:text-lg font-black tracking-tight mb-1 uppercase" style={{ color: '#000000' }}>TO VIEW OUR MENU</h2>
+
+                                                {/* 5. Business Name */}
+                                                <p className="text-sm sm:text-base font-bold mb-1" style={{ color: '#334155' }}>{viewBusiness.name}</p>
+
+                                                {/* 6. Powered by Row */}
+                                                <div className="mt-auto flex items-center justify-center pb-5 w-full" style={{ gap: '8px' }}>
+                                                    <span className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: '#6b7280', display: 'inline-block' }}>POWERED BY</span>
+                                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                        <img
+                                                            src="/assets/cmoon.png"
+                                                            alt="Colourmoon Logo"
+                                                            className="object-contain"
+                                                            style={{ display: 'block', height: '32px', width: '96px' }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Buttons (Separated from the card design) */}
+                                        <div className="mt-8 flex items-center justify-center space-x-4">
+                                            <button
+                                                onClick={() => handleDownload(viewBusiness._id, viewBusiness.qrCode, viewBusiness.name)}
+                                                disabled={isDownloading}
+                                                className="flex items-center space-x-2 px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-all shadow-lg font-bold uppercase text-xs tracking-widest disabled:opacity-50"
+                                            >
+                                                {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                                <span>{isDownloading ? 'Capturing...' : 'Download QR'}</span>
+                                            </button>
+                                            <button
+                                                onClick={() => handleShare(viewBusiness.slug, viewBusiness.name)}
+                                                disabled={isSharing}
+                                                className="flex items-center space-x-2 px-6 py-3 bg-white text-black border-2 border-black rounded-xl hover:bg-gray-50 transition-all shadow-lg font-bold uppercase text-xs tracking-widest disabled:opacity-50"
+                                            >
+                                                {isSharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
+                                                <span>{isSharing ? 'Sharing...' : 'Share Link'}</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
-                        </div>
-                        <div className="space-y-4">
-                            <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Name:</strong> <span className="text-gray-800 font-medium">{viewBusiness.name}</span></p>
-                            <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Username:</strong> <span className="text-gray-800 font-medium">{viewBusiness.userName}</span></p>
-                            <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Email:</strong> <span className="text-gray-800 font-medium">{viewBusiness.email}</span></p>
-                            <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Phone:</strong> <span className="text-gray-800 font-medium">{viewBusiness.mobileNumber}</span></p>
-                            <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">State:</strong> <span className="text-gray-800 font-medium">{viewBusiness.state || 'N/A'}</span></p>
-                            <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">City:</strong> <span className="text-gray-800 font-medium">{viewBusiness.city || 'N/A'}</span></p>
+
+                            <div className="space-y-4 pt-8 border-t border-gray-100 mt-8">
+                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Name:</strong> <span className="text-gray-800 font-medium">{viewBusiness.name}</span></p>
+                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Username:</strong> <span className="text-gray-800 font-medium">{viewBusiness.userName}</span></p>
+                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Email:</strong> <span className="text-gray-800 font-medium">{viewBusiness.email}</span></p>
+                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Phone:</strong> <span className="text-gray-800 font-medium">{viewBusiness.mobileNumber}</span></p>
+                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">State:</strong> <span className="text-gray-800 font-medium">{viewBusiness.state || 'N/A'}</span></p>
+                                <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">City:</strong> <span className="text-gray-800 font-medium">{viewBusiness.city || 'N/A'}</span></p>
+                            </div>
                         </div>
                     </div>
                 </div>

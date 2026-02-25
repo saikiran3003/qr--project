@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, List, LogOut, Package, User, Plus } from "lucide-react";
+import { LayoutDashboard, List, LogOut, Package, User, Plus, QrCode } from "lucide-react";
 import Swal from "sweetalert2";
 
 export default function ShopSidebar({ isOpen, onClose }) {
@@ -40,6 +40,7 @@ export default function ShopSidebar({ isOpen, onClose }) {
         { label: "Sub Categories", href: "/shop/sub-categories", icon: List },
         { label: "Products", href: "/shop/products", icon: Package },
         { label: "Profile", href: "/shop/profile", icon: User },
+        { label: "My QR", href: "/shop/my-qr", icon: QrCode },
     ];
 
     return (
