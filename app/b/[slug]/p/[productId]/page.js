@@ -191,7 +191,7 @@ export default function ProductDetailsPage() {
                     </div>
                     <button className="flex-1 bg-indigo-600 h-16 rounded-[1.5rem] flex items-center justify-center space-x-3 text-white font-black uppercase tracking-widest shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all">
                         <ShoppingBag size={20} />
-                        <span>Add to Order</span>
+                        <span>Add to cart</span>
                     </button>
                 </div>
             </div>
