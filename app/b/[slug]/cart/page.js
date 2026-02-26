@@ -15,6 +15,8 @@ export default function CartPage() {
     const [customerName, setCustomerName] = useState("");
     const [mobileNumber, setMobileNumber] = useState("");
 
+    const [isOrderStep, setIsOrderStep] = useState(false);
+
     useEffect(() => {
         const savedCart = localStorage.getItem(`cart_${slug}`);
         if (savedCart) {
@@ -49,6 +51,18 @@ export default function CartPage() {
 
     const handleSendOrder = async () => {
         if (cart.length === 0 || sharing) return;
+
+        if (!isOrderStep) {
+            setIsOrderStep(true);
+            // Scroll to the contact form that just appeared
+            setTimeout(() => {
+                const form = document.getElementById('contact-info-section');
+                if (form) {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+            return;
+        }
 
         if (!customerName.trim()) {
             Swal.fire({
@@ -192,30 +206,6 @@ export default function CartPage() {
                             ))}
                         </div>
 
-                        <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm space-y-4">
-                            <h2 className="text-sm font-black text-gray-800 uppercase tracking-widest">Customer Info</h2>
-                            <div className="space-y-3">
-                                <input
-                                    type="text"
-                                    placeholder="Your Name"
-                                    value={customerName}
-                                    onChange={(e) => setCustomerName(e.target.value)}
-                                    className="w-full h-14 px-5 bg-gray-50 rounded-2xl border border-transparent focus:border-indigo-600 focus:bg-white outline-none font-bold text-sm transition-all"
-                                />
-                                <input
-                                    type="tel"
-                                    placeholder="Mobile Number"
-                                    value={mobileNumber}
-                                    onChange={(e) => {
-                                        const value = e.target.value.replace(/\D/g, "");
-                                        if (value.length <= 10) setMobileNumber(value);
-                                    }}
-                                    maxLength={10}
-                                    className="w-full h-14 px-5 bg-gray-50 rounded-2xl border border-transparent focus:border-indigo-600 focus:bg-white outline-none font-bold text-sm transition-all"
-                                />
-                            </div>
-                        </div>
-
                         {/* Order Summary Card */}
                         <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm mt-8">
                             <h2 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-4">Price Details</h2>
@@ -232,6 +222,33 @@ export default function CartPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Conditional Customer Info section */}
+                        {isOrderStep && (
+                            <div id="contact-info-section" className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                                <h2 className="text-sm font-black text-gray-800 uppercase tracking-widest">Contact Info</h2>
+                                <div className="space-y-3 flex flex-col items-start">
+                                    <input
+                                        type="text"
+                                        placeholder="Your Name"
+                                        value={customerName}
+                                        onChange={(e) => setCustomerName(e.target.value)}
+                                        className="w-full max-w-[280px] h-14 px-5 bg-gray-50 rounded-2xl border border-transparent focus:border-indigo-600 focus:bg-white outline-none font-bold text-sm transition-all"
+                                    />
+                                    <input
+                                        type="tel"
+                                        placeholder="Mobile Number"
+                                        value={mobileNumber}
+                                        onChange={(e) => {
+                                            const value = e.target.value.replace(/\D/g, "");
+                                            if (value.length <= 10) setMobileNumber(value);
+                                        }}
+                                        maxLength={10}
+                                        className="w-full max-w-[280px] h-14 px-5 bg-gray-50 rounded-2xl border border-transparent focus:border-indigo-600 focus:bg-white outline-none font-bold text-sm transition-all"
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </>
                 ) : (
                     <div className="py-20 text-center">
@@ -255,7 +272,7 @@ export default function CartPage() {
                         disabled={sharing}
                         className={`w-fit px-8 mx-auto h-16 rounded-[1.5rem] flex items-center justify-center space-x-3 text-white font-black uppercase tracking-widest shadow-xl active:scale-[0.98] transition-all ${sharing ? 'bg-indigo-400 cursor-not-allowed shadow-none' : 'bg-indigo-600 shadow-indigo-100'}`}
                     >
-                        <span>{sharing ? 'sending...' : `Send Order • ₹${cartTotal}`}</span>
+                        <span>{sharing ? 'sending...' : (isOrderStep ? `Confirm Order • ₹${cartTotal}` : `Send Order • ₹${cartTotal}`)}</span>
                     </button>
                 </div>
             )}
