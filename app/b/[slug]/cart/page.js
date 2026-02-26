@@ -4,12 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, ShoppingBag, Trash2, Plus, Minus, Info } from "lucide-react";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 export default function CartPage() {
     const { slug } = useParams();
     const router = useRouter();
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [sharing, setSharing] = useState(false);
+    const [customerName, setCustomerName] = useState("");
+    const [mobileNumber, setMobileNumber] = useState("");
 
     useEffect(() => {
         const savedCart = localStorage.getItem(`cart_${slug}`);
@@ -42,6 +46,85 @@ export default function CartPage() {
     };
 
     const cartTotal = cart.reduce((total, item) => total + (item.salePrice * item.quantity), 0);
+
+    const handleSendOrder = async () => {
+        if (cart.length === 0 || sharing) return;
+
+        if (!customerName.trim()) {
+            Swal.fire({
+                title: 'Name Required',
+                text: 'Please enter your name to proceed with the order.',
+                icon: 'warning',
+                confirmButtonColor: '#4f46e5',
+                confirmButtonText: 'OK',
+                customClass: {
+                    container: 'z-[9999]'
+                }
+            });
+            return;
+        }
+
+        if (mobileNumber.length !== 10) {
+            Swal.fire({
+                title: 'Mobile Number Required',
+                text: 'Please enter a valid 10-digit mobile number.',
+                icon: 'warning',
+                confirmButtonColor: '#4f46e5',
+                confirmButtonText: 'OK',
+                customClass: {
+                    container: 'z-[9999]'
+                }
+            });
+            return;
+        }
+
+        setSharing(true);
+        const orderLines = cart.map(item =>
+            `${item.name} - ${item.quantity}: ${item.salePrice * item.quantity}/-`
+        ).join('\n');
+
+        const shareText = `Customer Name : ${customerName || 'N/A'}\nMobile Number : ${mobileNumber || 'N/A'}\n\nOrder Details\n\n${orderLines}\n\nTOTAL AMOUNT : ₹${cartTotal}`;
+
+        try {
+            // Store order in database
+            const response = await fetch('/api/public/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    businessSlug: slug,
+                    customerName,
+                    mobileNumber,
+                    items: cart.map(item => ({
+                        product: item._id,
+                        name: item.name,
+                        salePrice: item.salePrice,
+                        quantity: item.quantity
+                    })),
+                    totalAmount: cartTotal
+                })
+            });
+
+            if (!response.ok) {
+                console.error("Failed to save order to DB");
+            }
+
+            if (navigator.share) {
+                await navigator.share({
+                    title: `Order from ${slug}`,
+                    text: shareText
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                window.open(whatsappUrl, '_blank');
+            }
+        } catch (err) {
+            console.error("Order process error:", err);
+        } finally {
+            // Add a small delay after sharing before allowing again
+            setTimeout(() => setSharing(false), 500);
+        }
+    };
 
     if (loading) {
         return (
@@ -109,6 +192,30 @@ export default function CartPage() {
                             ))}
                         </div>
 
+                        <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm space-y-4">
+                            <h2 className="text-sm font-black text-gray-800 uppercase tracking-widest">Customer Info</h2>
+                            <div className="space-y-3">
+                                <input
+                                    type="text"
+                                    placeholder="Your Name"
+                                    value={customerName}
+                                    onChange={(e) => setCustomerName(e.target.value)}
+                                    className="w-full h-14 px-5 bg-gray-50 rounded-2xl border border-transparent focus:border-indigo-600 focus:bg-white outline-none font-bold text-sm transition-all"
+                                />
+                                <input
+                                    type="tel"
+                                    placeholder="Mobile Number"
+                                    value={mobileNumber}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, "");
+                                        if (value.length <= 10) setMobileNumber(value);
+                                    }}
+                                    maxLength={10}
+                                    className="w-full h-14 px-5 bg-gray-50 rounded-2xl border border-transparent focus:border-indigo-600 focus:bg-white outline-none font-bold text-sm transition-all"
+                                />
+                            </div>
+                        </div>
+
                         {/* Order Summary Card */}
                         <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm mt-8">
                             <h2 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-4">Price Details</h2>
@@ -143,8 +250,12 @@ export default function CartPage() {
             {/* Bottom Checkout Action */}
             {cart.length > 0 && (
                 <div className="fixed bottom-0 inset-x-0 p-6 z-50 bg-gradient-to-t from-white via-white to-transparent">
-                    <button className="w-full max-w-md mx-auto bg-indigo-600 h-16 rounded-[1.5rem] flex items-center justify-center space-x-3 text-white font-black uppercase tracking-widest shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all">
-                        <span>Place Order • ₹{cartTotal}</span>
+                    <button
+                        onClick={handleSendOrder}
+                        disabled={sharing}
+                        className={`w-full max-w-md mx-auto h-16 rounded-[1.5rem] flex items-center justify-center space-x-3 text-white font-black uppercase tracking-widest shadow-xl active:scale-[0.98] transition-all ${sharing ? 'bg-indigo-400 cursor-not-allowed shadow-none' : 'bg-indigo-600 shadow-indigo-100'}`}
+                    >
+                        <span>{sharing ? 'sending...' : `Send Order • ₹${cartTotal}`}</span>
                     </button>
                 </div>
             )}
