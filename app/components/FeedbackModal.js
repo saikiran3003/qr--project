@@ -126,38 +126,38 @@ export default function FeedbackModal({ isOpen, onClose, business }) {
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 ml-1">Your Name *</label>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-black-400 mb-1 ml-1">Your Name *</label>
                                 <input
                                     type="text"
                                     placeholder="Enter your name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className={`w-full px-5 py-4 bg-gray-50 border ${errors.name ? 'border-red-200' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 font-bold text-gray-700`}
+                                    className={`w-full px-5 py-4 bg-gray-50 border ${errors.name ? 'border-red-200' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/10 font-bold text-gray-700`}
                                 />
                                 {errors.name && <p className="text-red-500 text-[10px] mt-1 ml-1 font-bold">{errors.name}</p>}
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 ml-1">Phone Number (10 Digits)</label>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-black-400 mb-1 ml-1">Phone Number</label>
                                 <input
                                     type="tel"
                                     maxLength={10}
                                     placeholder="Enter 10 digit number"
                                     value={formData.mobileNumber}
                                     onChange={(e) => setFormData({ ...formData, mobileNumber: e.target.value.replace(/\D/g, '') })}
-                                    className={`w-full px-5 py-4 bg-gray-50 border ${errors.mobileNumber ? 'border-red-200' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 font-bold text-gray-700`}
+                                    className={`w-full px-5 py-4 bg-gray-50 border ${errors.mobileNumber ? 'border-red-200' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/10 font-bold text-gray-700`}
                                 />
                                 {errors.mobileNumber && <p className="text-red-500 text-[10px] mt-1 ml-1 font-bold">{errors.mobileNumber}</p>}
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 ml-1">Your Feedback * (Min 18 Chars)</label>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-black-400 mb-1 ml-1">Your Feedback * (Min 18 Chars)</label>
                                 <textarea
                                     rows={4}
                                     placeholder="Tell us about your experience..."
                                     value={formData.comment}
                                     onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-                                    className={`w-full px-5 py-4 bg-gray-50 border ${errors.comment ? 'border-red-200' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 font-bold text-gray-700 resize-none`}
+                                    className={`w-full px-5 py-4 bg-gray-50 border ${errors.comment ? 'border-red-200' : 'border-gray-100'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/10 font-bold text-gray-700 resize-none`}
                                 />
                                 <div className="flex justify-between mt-1 px-1">
                                     {errors.comment ? <p className="text-red-500 text-[10px] font-bold">{errors.comment}</p> : <span />}
@@ -167,7 +167,7 @@ export default function FeedbackModal({ isOpen, onClose, business }) {
                         </div>
 
                         <div className="flex space-x-3 mt-8">
-                            <button onClick={() => setStep(1)} className="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center space-x-2">
+                            <button onClick={() => setStep(1)} className="flex-1 py-4 bg-gray-100 text-black-500 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center space-x-2">
                                 <ChevronLeft size={16} />
                                 <span>Back</span>
                             </button>
