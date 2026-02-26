@@ -6,10 +6,15 @@ import { NextResponse } from 'next/server';
 export async function GET(req, { params }) {
     try {
         await dbConnect();
-        const { slug, productId } = await params;
+        let { slug, productId } = await params;
+        const normalizedSlug = decodeURIComponent(slug).trim().replace(/\s+/g, '-').replace(/-+/g, '-');
 
-        const business = await Business.findOne({ slug, status: true }).select('name logo city mobileNumber address');
-        if (!business) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+        const business = await Business.findOne({
+            slug: { $regex: new RegExp(`^${normalizedSlug}$`, "i") }
+        }).select('name logo city mobileNumber address status');
+
+        if (!business) return NextResponse.json({ error: 'Business not found' }, { status: 404 });
+        if (!business.status) return NextResponse.json({ error: 'Business is inactive' }, { status: 403 });
 
         const product = await Product.findById(productId).populate('category').populate('subCategory');
         if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });

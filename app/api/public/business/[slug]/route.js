@@ -7,11 +7,35 @@ import { NextResponse } from 'next/server';
 export async function GET(req, { params }) {
     try {
         await dbConnect();
-        const { slug } = await params;
+        let { slug } = await params;
 
-        const business = await Business.findOne({ slug, status: true }).select('-password');
+        // Normalize slug: remove accidental spaces and handle common typos
+        const normalizedSlug = decodeURIComponent(slug).trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+        console.log(`API Request: original='${slug}', normalized='${normalizedSlug}'`);
+
+        const businessCount = await Business.countDocuments({});
+        console.log("DB Stats: Total businesses in DB =", businessCount);
+
+        // Try exact match with normalized slug
+        let business = await Business.findOne({ slug: normalizedSlug }).select('-password');
+
         if (!business) {
-            return NextResponse.json({ error: 'Business not found or inactive' }, { status: 404 });
+            console.log("API: Exact slug match failed, trying case-insensitive regex for:", normalizedSlug);
+            business = await Business.findOne({
+                slug: { $regex: new RegExp(`^${normalizedSlug}$`, "i") }
+            }).select('-password');
+        }
+
+        if (!business) {
+            console.log("API: Slug match failed entirely. Checking all businesses...");
+            const all = await Business.find({}).select('slug name');
+            console.log("API: Available slugs in DB:", all.map(b => b.slug));
+            return NextResponse.json({ error: `Store with slug '${slug}' not found.` }, { status: 404 });
+        }
+
+        if (!business.status) {
+            console.warn(`API: Business found but is inactive for slug: ${slug}`);
+            return NextResponse.json({ error: 'Business is currently inactive' }, { status: 403 });
         }
 
         const categories = await BusinessCategory.find({ business: business._id, status: true }).sort({ createdAt: 1 });

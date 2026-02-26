@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { MapPin, Search, ChevronRight, ImageIcon, Info, Plus, ShoppingBag } from "lucide-react";
+import { MapPin, Search, ChevronRight, ImageIcon, Info, Plus, ShoppingBag, Menu } from "lucide-react";
 import Link from "next/link";
+import CustomerSidebar from "../../components/CustomerSidebar";
 
 export default function BusinessLandingPage() {
     const { slug } = useParams();
@@ -12,9 +13,10 @@ export default function BusinessLandingPage() {
     const [data, setData] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [cart, setCart] = useState([]);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
-        if (!slug) return;
+        if (!slug || slug === "[slug]" || slug === "slug") return;
 
         // Load cart for this business
         const savedCart = localStorage.getItem(`cart_${slug}`);
@@ -72,15 +74,17 @@ export default function BusinessLandingPage() {
 
     const fetchBusinessData = async () => {
         try {
-            const res = await fetch(`/api/public/business/${slug}`);
+            console.log("Fetching data for slug:", slug);
+            const res = await fetch(`/api/public/business/${encodeURIComponent(slug)}`);
             const result = await res.json();
             if (res.ok) {
                 setData(result);
             } else {
-                console.error("Business not found");
+                console.error("Business API Error:", result.error || "Unknown Error", "Status:", res.status);
+                setData(result.error || "Store not found");
             }
         } catch (error) {
-            console.error("Fetch error:", error);
+            console.error("Fetch Exception:", error);
         } finally {
             setLoading(false);
         }
@@ -94,20 +98,27 @@ export default function BusinessLandingPage() {
         );
     }
 
-    if (!data) {
+    if (!data || typeof data === 'string') {
         return (
             <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
                 <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6 text-gray-300">
                     <Info size={48} />
                 </div>
-                <h1 className="text-2xl font-bold text-gray-800">Store Not Found</h1>
-                <p className="text-gray-500 mt-2">The store you're looking for doesn't exist or is currently inactive.</p>
-                <Link href="/" className="mt-8 px-8 py-3 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg">Go Back Home</Link>
+                <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Access Error</h1>
+                <p className="text-gray-500 mt-2 font-bold text-indigo-600 tracking-wide px-4">
+                    {typeof data === 'string' ? data : "This store is currently unavailable or doesn't exist."}
+                </p>
+                <div className="mt-8 p-4 bg-gray-50 rounded-2xl text-[10px] text-gray-400 font-mono border border-gray-100 uppercase tracking-widest">
+                    PATH: {slug}
+                </div>
+                <Link href="/" className="mt-8 px-10 py-4 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-100 active:scale-95 transition-all">
+                    Go Back Home
+                </Link>
             </div>
         );
     }
 
-    const { business, categories, products } = data;
+    const { business, categories = [], products = [] } = data || {};
 
     // Group products by category
     const groupedProducts = categories.reduce((acc, cat) => {
@@ -131,6 +142,11 @@ export default function BusinessLandingPage() {
 
     return (
         <div className="min-h-[100dvh] bg-white pb-12">
+            <CustomerSidebar
+                isOpen={isMenuOpen}
+                onClose={() => setIsMenuOpen(false)}
+                business={business}
+            />
             {/* Header / Hero */}
             <div className="relative h-64 bg-indigo-600 overflow-hidden">
                 {/* Background Pattern/Gradient */}
@@ -142,6 +158,14 @@ export default function BusinessLandingPage() {
                         className="absolute inset-0 w-full h-full object-cover blur-sm opacity-50 scale-110"
                     />
                 )}
+                <div className="absolute top-6 left-6 z-30">
+                    <button
+                        onClick={() => setIsMenuOpen(true)}
+                        className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white border border-white/20 shadow-lg active:scale-95 transition-all"
+                    >
+                        <Menu size={24} />
+                    </button>
+                </div>
                 <div className="absolute top-6 right-6 z-30">
                     <Link
                         href={`/b/${slug}/cart`}
