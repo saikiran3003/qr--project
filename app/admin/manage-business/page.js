@@ -791,7 +791,7 @@ export default function ManageBusinessPage() {
                                                 className="flex items-center space-x-2 px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-all shadow-lg font-bold uppercase text-xs tracking-widest disabled:opacity-50"
                                             >
                                                 {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-                                                <span>{isDownloading ? 'Capturing...' : 'Download QR'}</span>
+                                                <span>{isDownloading ? 'Downloading...' : 'Download QR'}</span>
                                             </button>
                                             <button
                                                 onClick={() => handleShare(viewBusiness.slug, viewBusiness.name)}

@@ -263,7 +263,7 @@ export default function MyQrPage() {
                                 className="flex items-center justify-center space-x-2 px-8 py-4 bg-black text-white rounded-2xl hover:bg-gray-800 transition-all shadow-xl font-black uppercase text-xs tracking-widest min-w-[200px] disabled:opacity-50"
                             >
                                 {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                                <span>{isDownloading ? 'Capturing...' : 'Download QR'}</span>
+                                <span>{isDownloading ? 'Downloading...' : 'Download QR'}</span>
                             </button>
                             <button
                                 onClick={handleShare}
