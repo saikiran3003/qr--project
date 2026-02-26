@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, MessageSquare, Share2, Star, Phone, MapPin, Mail } from "lucide-react";
+import { X, MessageSquare, Share2, Star, Phone, MapPin, Mail, Instagram, Facebook, Youtube } from "lucide-react";
 import FeedbackModal from "./FeedbackModal";
 import ShareModal from "./ShareModal";
 
@@ -97,15 +97,53 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
                             <span className="font-bold text-gray-700">Share eMenu</span>
                         </button>
 
-                        <button
-                            onClick={handleGoogleReviewClick}
-                            className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group"
-                        >
-                            <div className="w-10 h-10 flex items-center justify-center text-gray-400 group-hover:text-indigo-600">
-                                <Star size={20} />
-                            </div>
-                            <span className="font-bold text-gray-700">Google Review</span>
-                        </button>
+                        {business.googleReviewUrl && (
+                            <button
+                                onClick={handleGoogleReviewClick}
+                                className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group"
+                            >
+                                <div className="w-10 h-10 flex items-center justify-center text-gray-400 group-hover:text-indigo-600">
+                                    <Star size={20} />
+                                </div>
+                                <span className="font-bold text-gray-700">Google Review</span>
+                            </button>
+                        )}
+
+                        {business.instagramUrl && (
+                            <button
+                                onClick={() => window.open(business.instagramUrl, "_blank", "noopener,noreferrer")}
+                                className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group"
+                            >
+                                <div className="w-10 h-10 flex items-center justify-center text-gray-400 group-hover:text-pink-600">
+                                    <Instagram size={20} />
+                                </div>
+                                <span className="font-bold text-gray-700">Instagram</span>
+                            </button>
+                        )}
+
+                        {business.facebookUrl && (
+                            <button
+                                onClick={() => window.open(business.facebookUrl, "_blank", "noopener,noreferrer")}
+                                className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group"
+                            >
+                                <div className="w-10 h-10 flex items-center justify-center text-gray-400 group-hover:text-blue-600">
+                                    <Facebook size={20} />
+                                </div>
+                                <span className="font-bold text-gray-700">Facebook</span>
+                            </button>
+                        )}
+
+                        {business.youtubeUrl && (
+                            <button
+                                onClick={() => window.open(business.youtubeUrl, "_blank", "noopener,noreferrer")}
+                                className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group"
+                            >
+                                <div className="w-10 h-10 flex items-center justify-center text-gray-400 group-hover:text-red-600">
+                                    <Youtube size={20} />
+                                </div>
+                                <span className="font-bold text-gray-700">Youtube</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 

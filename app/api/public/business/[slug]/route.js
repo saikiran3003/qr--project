@@ -3,51 +3,72 @@ import Business from '@/models/Business';
 import BusinessCategory from '@/models/BusinessCategory';
 import Product from '@/models/Product';
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose'; // Added this import for ObjectId validation
 
 export async function GET(req, { params }) {
     try {
         await dbConnect();
-        let { slug } = await params;
+        const { slug } = await params;
 
-        // Normalize slug: remove accidental spaces and handle common typos
-        const normalizedSlug = decodeURIComponent(slug).trim().replace(/\s+/g, '-').replace(/-+/g, '-');
-        console.log(`API Request: original='${slug}', normalized='${normalizedSlug}'`);
+        if (!slug) {
+            return NextResponse.json({ error: "No slug provided" }, { status: 400 });
+        }
 
-        const businessCount = await Business.countDocuments({});
-        console.log("DB Stats: Total businesses in DB =", businessCount);
+        const decodedSlug = decodeURIComponent(slug).trim();
+        const hyphenatedSlug = decodedSlug.replace(/\s+/g, '-').replace(/-+/g, '-');
+        const lowerSlug = hyphenatedSlug.toLowerCase();
 
-        // Try exact match with normalized slug
-        let business = await Business.findOne({ slug: normalizedSlug }).select('-password');
+        console.log(`Searching for Store: '${slug}' -> Decoded: '${decodedSlug}' -> Normalized: '${lowerSlug}'`);
 
+        // 1. Try exact slug match (Standard)
+        let business = await Business.findOne({
+            $or: [
+                { slug: lowerSlug },
+                { slug: decodedSlug },
+                { slug: hyphenatedSlug }
+            ]
+        }).select('-password');
+
+        // 2. Try matching by ID (In case user provides _id instead of slug)
+        if (!business && mongoose.Types.ObjectId.isValid(decodedSlug)) {
+            business = await Business.findById(decodedSlug).select('-password');
+        }
+
+        // 3. Try case-insensitive matching (Most flexible)
         if (!business) {
-            console.log("API: Exact slug match failed, trying case-insensitive regex for:", normalizedSlug);
             business = await Business.findOne({
-                slug: { $regex: new RegExp(`^${normalizedSlug}$`, "i") }
+                $or: [
+                    { slug: { $regex: new RegExp(`^${lowerSlug}$`, "i") } },
+                    { slug: { $regex: new RegExp(`^${decodedSlug}$`, "i") } },
+                    { name: { $regex: new RegExp(`^${decodedSlug}$`, "i") } }
+                ]
             }).select('-password');
         }
 
         if (!business) {
-            console.log("API: Slug match failed entirely. Checking all businesses...");
-            const all = await Business.find({}).select('slug name');
-            console.log("API: Available slugs in DB:", all.map(b => b.slug));
-            return NextResponse.json({ error: `Store with slug '${slug}' not found.` }, { status: 404 });
+            // Find all businesses to suggest what might be wrong in server logs
+            const allStores = await Business.find({}).select('slug name');
+            console.log("Store not found. Available Slugs:", allStores.map(b => b.slug));
+
+            return NextResponse.json({
+                error: `Store '${decodedSlug}' was not found.`,
+                suggestion: "Please try searching for the store name accurately."
+            }, { status: 404 });
         }
 
         if (!business.status) {
-            console.warn(`API: Business found but is inactive for slug: ${slug}`);
-            return NextResponse.json({ error: 'Business is currently inactive' }, { status: 403 });
+            return NextResponse.json({ error: 'Business account is currently disabled' }, { status: 403 });
         }
 
-        const categories = await BusinessCategory.find({ business: business._id, status: true }).sort({ createdAt: 1 });
-        const products = await Product.find({ business: business._id, status: true }).sort({ createdAt: -1 });
+        const [categories, products] = await Promise.all([
+            BusinessCategory.find({ business: business._id, status: true }).sort({ createdAt: 1 }),
+            Product.find({ business: business._id, status: true }).sort({ createdAt: -1 })
+        ]);
 
-        return NextResponse.json({
-            business,
-            categories,
-            products
-        });
+        return NextResponse.json({ business, categories, products });
+
     } catch (error) {
-        console.error("Public Business API Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error("Critical Business API Error:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

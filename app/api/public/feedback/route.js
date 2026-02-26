@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req) {
     try {
         await dbConnect();
-        const { businessId, rating } = await req.json();
+        const { businessId, rating, name, mobileNumber, comment } = await req.json();
 
         if (!businessId || !rating) {
             return NextResponse.json({ error: 'Missing businessId or rating' }, { status: 400 });
@@ -13,7 +13,10 @@ export async function POST(req) {
 
         const feedback = await Feedback.create({
             businessId,
-            rating
+            rating,
+            name,
+            mobileNumber,
+            comment
         });
 
         return NextResponse.json({ success: true, feedback });

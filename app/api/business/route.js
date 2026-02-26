@@ -33,6 +33,9 @@ export async function POST(req) {
         const password = formData.get('password');
         const categoryId = formData.get('category');
         const googleReviewUrl = formData.get('googleReviewUrl');
+        const instagramUrl = formData.get('instagramUrl');
+        const facebookUrl = formData.get('facebookUrl');
+        const youtubeUrl = formData.get('youtubeUrl');
         const logoFile = formData.get('logo');
 
         if (!logoFile) {
@@ -107,7 +110,10 @@ export async function POST(req) {
             city,
             address,
             password: hashedPassword,
-            googleReviewUrl,
+            googleReviewUrl: googleReviewUrl || "",
+            instagramUrl: instagramUrl || "",
+            facebookUrl: facebookUrl || "",
+            youtubeUrl: youtubeUrl || "",
             logo: logoUploadResponse.secure_url,
             qrCode: qrUploadResponse.secure_url,
             category: categoryId,

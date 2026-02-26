@@ -214,7 +214,10 @@ export default function ManageBusinessPage() {
         category: "",
         logo: null,
         countryCode: "+91",
-        googleReviewUrl: ""
+        googleReviewUrl: "",
+        instagramUrl: "",
+        facebookUrl: "",
+        youtubeUrl: ""
     });
     const [errors, setErrors] = useState({});
 
@@ -337,7 +340,10 @@ export default function ManageBusinessPage() {
         setFormData({
             name: "", userName: "", mobileNumber: "", email: "", country: "IN",
             state: "", city: "", address: "", password: "", category: "", logo: null, countryCode: "+91",
-            googleReviewUrl: ""
+            googleReviewUrl: "",
+            instagramUrl: "",
+            facebookUrl: "",
+            youtubeUrl: ""
         });
         setErrors({});
         setCountrySearch(""); setStateSearch(""); setCitySearch("");
@@ -360,7 +366,10 @@ export default function ManageBusinessPage() {
             logo: biz.logo || null,
             countryCode: parts[0] || "+91",
             mobileNumber: parts.slice(1).join(' ') || biz.mobileNumber || "",
-            googleReviewUrl: biz.googleReviewUrl || ""
+            googleReviewUrl: biz.googleReviewUrl || "",
+            instagramUrl: biz.instagramUrl || "",
+            facebookUrl: biz.facebookUrl || "",
+            youtubeUrl: biz.youtubeUrl || ""
         });
         setImagePreview(biz.logo || null);
         setCountrySearch(biz.country || "");
@@ -653,6 +662,42 @@ export default function ManageBusinessPage() {
                                             />
                                         </div>
 
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Instagram URL</label>
+                                            <input
+                                                id="instagramUrl"
+                                                type="url"
+                                                value={formData.instagramUrl}
+                                                onChange={handleInputChange}
+                                                placeholder="https://instagram.com/..."
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20"
+                                            />
+                                        </div>
+
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Facebook URL</label>
+                                            <input
+                                                id="facebookUrl"
+                                                type="url"
+                                                value={formData.facebookUrl}
+                                                onChange={handleInputChange}
+                                                placeholder="https://facebook.com/..."
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20"
+                                            />
+                                        </div>
+
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Youtube URL</label>
+                                            <input
+                                                id="youtubeUrl"
+                                                type="url"
+                                                value={formData.youtubeUrl}
+                                                onChange={handleInputChange}
+                                                placeholder="https://youtube.com/..."
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20"
+                                            />
+                                        </div>
+
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">Business Category*</label>
                                             <select
@@ -829,6 +874,9 @@ export default function ManageBusinessPage() {
                                     <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Phone:</strong> <span className="text-gray-800 font-medium">{viewBusiness.mobileNumber}</span></p>
                                     <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">State:</strong> <span className="text-gray-800 font-medium">{viewBusiness.state || 'N/A'}</span></p>
                                     <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">City:</strong> <span className="text-gray-800 font-medium">{viewBusiness.city || 'N/A'}</span></p>
+                                    {viewBusiness.instagramUrl && <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Instagram:</strong> <span className="text-gray-800 font-medium truncate ml-4 italic text-pink-600">{viewBusiness.instagramUrl}</span></p>}
+                                    {viewBusiness.facebookUrl && <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Facebook:</strong> <span className="text-gray-800 font-medium truncate ml-4 italic text-blue-600">{viewBusiness.facebookUrl}</span></p>}
+                                    {viewBusiness.youtubeUrl && <p className="flex justify-between border-b border-gray-50 pb-2"><strong className="text-gray-600">Youtube:</strong> <span className="text-gray-800 font-medium truncate ml-4 italic text-red-600">{viewBusiness.youtubeUrl}</span></p>}
                                 </div>
                             )}
                         </div>

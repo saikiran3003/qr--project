@@ -22,6 +22,9 @@ export async function PUT(req, { params }) {
         const password = formData.get('password');
         const categoryId = formData.get('category');
         const googleReviewUrl = formData.get('googleReviewUrl');
+        const instagramUrl = formData.get('instagramUrl');
+        const facebookUrl = formData.get('facebookUrl');
+        const youtubeUrl = formData.get('youtubeUrl');
         const logoFile = formData.get('logo');
 
         const updateData = {};
@@ -45,7 +48,10 @@ export async function PUT(req, { params }) {
         if (city) updateData.city = city;
         if (address) updateData.address = address;
         if (categoryId) updateData.category = categoryId;
-        if (googleReviewUrl !== null) updateData.googleReviewUrl = googleReviewUrl;
+        updateData.googleReviewUrl = googleReviewUrl || "";
+        updateData.instagramUrl = instagramUrl || "";
+        updateData.facebookUrl = facebookUrl || "";
+        updateData.youtubeUrl = youtubeUrl || "";
 
         // Hash password if provided
         if (password && password.trim() !== "" && !password.startsWith('$2a$')) {

@@ -12,6 +12,9 @@ const FeedbackSchema = new mongoose.Schema({
         min: 1,
         max: 5,
     },
+    name: String,
+    mobileNumber: String,
+    comment: String,
     createdAt: {
         type: Date,
         default: Date.now,
