@@ -41,6 +41,7 @@ const BusinessSchema = new mongoose.Schema({
         default: 0,
     },
     qrCode: String,
+    googleReviewUrl: String,
     createdAt: {
         type: Date,
         default: Date.now,

@@ -9,7 +9,7 @@ const ShareSchema = new mongoose.Schema({
     platform: {
         type: String,
         required: true,
-        enum: ['whatsapp', 'facebook', 'twitter', 'copy_link'],
+        enum: ['whatsapp', 'facebook', 'twitter', 'copy_link', 'google_review'],
     },
     createdAt: {
         type: Date,

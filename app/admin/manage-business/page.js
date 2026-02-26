@@ -213,7 +213,8 @@ export default function ManageBusinessPage() {
         password: "",
         category: "",
         logo: null,
-        countryCode: "+91"
+        countryCode: "+91",
+        googleReviewUrl: ""
     });
     const [errors, setErrors] = useState({});
 
@@ -335,7 +336,8 @@ export default function ManageBusinessPage() {
         setImagePreview(null);
         setFormData({
             name: "", userName: "", mobileNumber: "", email: "", country: "IN",
-            state: "", city: "", address: "", password: "", category: "", logo: null, countryCode: "+91"
+            state: "", city: "", address: "", password: "", category: "", logo: null, countryCode: "+91",
+            googleReviewUrl: ""
         });
         setErrors({});
         setCountrySearch(""); setStateSearch(""); setCitySearch("");
@@ -357,7 +359,8 @@ export default function ManageBusinessPage() {
             category: biz.category?._id || biz.category || "",
             logo: biz.logo || null,
             countryCode: parts[0] || "+91",
-            mobileNumber: parts.slice(1).join(' ') || biz.mobileNumber || ""
+            mobileNumber: parts.slice(1).join(' ') || biz.mobileNumber || "",
+            googleReviewUrl: biz.googleReviewUrl || ""
         });
         setImagePreview(biz.logo || null);
         setCountrySearch(biz.country || "");
@@ -636,6 +639,18 @@ export default function ManageBusinessPage() {
                                                 ))}
                                             </select>
                                             {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                                        </div>
+
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Google Review Link</label>
+                                            <input
+                                                id="googleReviewUrl"
+                                                type="url"
+                                                value={formData.googleReviewUrl}
+                                                onChange={handleInputChange}
+                                                placeholder="https://g.page/r/..."
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20"
+                                            />
                                         </div>
 
                                         <div className="md:col-span-2">

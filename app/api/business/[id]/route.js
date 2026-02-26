@@ -21,6 +21,7 @@ export async function PUT(req, { params }) {
         const address = formData.get('address');
         const password = formData.get('password');
         const categoryId = formData.get('category');
+        const googleReviewUrl = formData.get('googleReviewUrl');
         const logoFile = formData.get('logo');
 
         const updateData = {};
@@ -44,6 +45,7 @@ export async function PUT(req, { params }) {
         if (city) updateData.city = city;
         if (address) updateData.address = address;
         if (categoryId) updateData.category = categoryId;
+        if (googleReviewUrl !== null) updateData.googleReviewUrl = googleReviewUrl;
 
         // Hash password if provided
         if (password && password.trim() !== "" && !password.startsWith('$2a$')) {

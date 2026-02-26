@@ -17,6 +17,29 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
         setIsShareOpen(true);
     };
 
+    const handleGoogleReviewClick = async () => {
+        try {
+            // Log click to DB
+            await fetch('/api/public/share', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    businessId: business._id,
+                    platform: 'google_review'
+                })
+            });
+        } catch (error) {
+            console.error("Log review click error:", error);
+        }
+
+        // Open URL
+        if (business.googleReviewUrl) {
+            window.open(business.googleReviewUrl, "_blank");
+        } else {
+            alert("Google Review link not configured for this business.");
+        }
+    };
+
     return (
         <>
             <FeedbackModal
@@ -71,17 +94,15 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
                             <span className="font-bold text-gray-700">Share eMenu</span>
                         </button>
 
-                        <a
-                            href={business.googleReviewUrl || "#"}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <button
+                            onClick={handleGoogleReviewClick}
                             className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group"
                         >
                             <div className="w-10 h-10 flex items-center justify-center text-gray-400 group-hover:text-indigo-600">
                                 <Star size={20} />
                             </div>
                             <span className="font-bold text-gray-700">Google Review</span>
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -97,12 +118,17 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
                     )}
 
                     {business.address && (
-                        <div className="flex items-start space-x-4 p-4 text-gray-500 group">
-                            <div className="text-gray-400">
+                        <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${business.address}, ${business.city}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-start space-x-4 p-4 text-gray-500 hover:text-indigo-600 transition-colors group"
+                        >
+                            <div className="text-gray-400 group-hover:text-indigo-600 transition-colors">
                                 <MapPin size={20} className="mt-0.5" />
                             </div>
                             <span className="text-sm font-bold leading-relaxed">{business.address}, {business.city}</span>
-                        </div>
+                        </a>
                     )}
 
                     {business.email && (
