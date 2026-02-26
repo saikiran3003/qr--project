@@ -12,11 +12,51 @@ export default function CategoryDetailsPage() {
     const [data, setData] = useState(null);
     const [activeSubCat, setActiveSubCat] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
+    const [cart, setCart] = useState([]);
     const scrollContainerRef = useRef(null);
 
     useEffect(() => {
-        if (slug && categoryId) fetchCategoryData();
+        if (!slug || !categoryId) return;
+
+        // Load cart for this business
+        const savedCart = localStorage.getItem(`cart_${slug}`);
+        if (savedCart) {
+            try {
+                setCart(JSON.parse(savedCart));
+            } catch (e) {
+                console.error("Error parsing cart:", e);
+            }
+        }
+
+        // Fetch category data
+        fetchCategoryData();
     }, [slug, categoryId]);
+
+    const addToCart = (product) => {
+        let currentCart = [...cart];
+        const existingItemIndex = currentCart.findIndex(item => item._id === product._id);
+
+        if (existingItemIndex > -1) {
+            currentCart[existingItemIndex].quantity += 1;
+        } else {
+            currentCart.push({
+                _id: product._id,
+                name: product.name,
+                salePrice: product.salePrice,
+                image: product.images?.[0],
+                quantity: 1,
+                businessId: business._id,
+                businessSlug: slug
+            });
+        }
+
+        setCart(currentCart);
+        localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
+    };
+
+    const cartTotal = cart.reduce((total, item) => total + (item.salePrice * item.quantity), 0);
+    const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+
 
     const fetchCategoryData = async () => {
         try {
@@ -63,10 +103,10 @@ export default function CategoryDetailsPage() {
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{business.name}</p>
                     </div>
                 </div>
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center relative shadow-sm border border-gray-100">
+                <Link href={`/b/${slug}/cart`} className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center relative shadow-sm border border-gray-100 active:scale-95 transition-all">
                     <ShoppingBag size={20} className="text-gray-800" />
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">0</span>
-                </div>
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">{cartCount}</span>
+                </Link>
             </header>
 
             {/* Sticky Search & Tabs */}
@@ -139,7 +179,13 @@ export default function CategoryDetailsPage() {
                                             <span className="text-[10px] font-bold text-gray-400 line-through">₹{prod.mrpPrice}</span>
                                         )}
                                     </div>
-                                    <button className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all absolute bottom-4 right-4">
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            addToCart(prod);
+                                        }}
+                                        className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all absolute bottom-4 right-4 z-20"
+                                    >
                                         <Plus size={20} />
                                     </button>
                                 </div>
@@ -155,6 +201,28 @@ export default function CategoryDetailsPage() {
                     </div>
                 )}
             </div>
+            {/* Floating Cart Summary Bar */}
+            {cartCount > 0 && (
+                <div className="fixed bottom-6 inset-x-6 z-50">
+                    <div className="max-w-md mx-auto w-full bg-indigo-900 text-white px-6 py-4 rounded-3xl flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10 duration-500">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
+                                <ShoppingBag size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest leading-none mb-1">Items: {cartCount}</p>
+                                <p className="text-xl font-black">₹{cartTotal}</p>
+                            </div>
+                        </div>
+                        <Link
+                            href={`/b/${slug}/cart`}
+                            className="bg-white text-indigo-900 px-6 py-3 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all"
+                        >
+                            View Cart
+                        </Link>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

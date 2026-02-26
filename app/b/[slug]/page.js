@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { MapPin, Search, ChevronRight, ImageIcon, Info, Plus } from "lucide-react";
+import { MapPin, Search, ChevronRight, ImageIcon, Info, Plus, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
 export default function BusinessLandingPage() {
@@ -11,10 +11,50 @@ export default function BusinessLandingPage() {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [cart, setCart] = useState([]);
 
     useEffect(() => {
-        if (slug) fetchBusinessData();
+        if (!slug) return;
+
+        // Load cart for this business
+        const savedCart = localStorage.getItem(`cart_${slug}`);
+        if (savedCart) {
+            try {
+                setCart(JSON.parse(savedCart));
+            } catch (e) {
+                console.error("Error parsing cart:", e);
+            }
+        }
+
+        // Fetch business data
+        fetchBusinessData();
     }, [slug]);
+
+    const addToCart = (product) => {
+        let currentCart = [...cart];
+        const existingItemIndex = currentCart.findIndex(item => item._id === product._id);
+
+        if (existingItemIndex > -1) {
+            currentCart[existingItemIndex].quantity += 1;
+        } else {
+            currentCart.push({
+                _id: product._id,
+                name: product.name,
+                salePrice: product.salePrice,
+                image: product.images?.[0],
+                quantity: 1,
+                businessId: business._id,
+                businessSlug: slug
+            });
+        }
+
+        setCart(currentCart);
+        localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
+    };
+
+    const cartTotal = cart.reduce((total, item) => total + (item.salePrice * item.quantity), 0);
+    const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+
 
     const fetchBusinessData = async () => {
         try {
@@ -88,6 +128,17 @@ export default function BusinessLandingPage() {
                         className="absolute inset-0 w-full h-full object-cover blur-sm opacity-50 scale-110"
                     />
                 )}
+                <div className="absolute top-6 right-6 z-30">
+                    <Link
+                        href={`/b/${slug}/cart`}
+                        className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white border border-white/20 shadow-lg active:scale-95 transition-all relative"
+                    >
+                        <ShoppingBag size={20} />
+                        {cartCount > 0 && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">{cartCount}</span>
+                        )}
+                    </Link>
+                </div>
 
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-end p-8 text-center text-white">
                     <div className="w-24 h-24 rounded-3xl overflow-hidden border-4 border-white shadow-2xl mb-4 bg-white">
@@ -201,9 +252,15 @@ export default function BusinessLandingPage() {
                                                             <span className="text-[10px] font-bold text-gray-400 line-through">₹{prod.mrpPrice}</span>
                                                         )}
                                                     </div>
-                                                    <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all lg:absolute lg:bottom-4 lg:right-4">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            addToCart(prod);
+                                                        }}
+                                                        className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all lg:absolute lg:bottom-4 lg:right-4 z-20"
+                                                    >
                                                         <Plus size={16} />
-                                                    </div>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </Link>
@@ -227,6 +284,28 @@ export default function BusinessLandingPage() {
                 </div>
             </div>
 
+            {/* Floating Cart Summary Bar */}
+            {cartCount > 0 && (
+                <div className="fixed bottom-6 inset-x-6 z-50">
+                    <div className="max-w-md mx-auto w-full bg-indigo-900 text-white px-6 py-4 rounded-3xl flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10 duration-500">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
+                                <ShoppingBag size={21} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest leading-none mb-1">Items: {cartCount}</p>
+                                <p className="text-xl font-black">₹{cartTotal}</p>
+                            </div>
+                        </div>
+                        <Link
+                            href={`/b/${slug}/cart`}
+                            className="bg-white text-indigo-900 px-6 py-3 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all"
+                        >
+                            View Cart
+                        </Link>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

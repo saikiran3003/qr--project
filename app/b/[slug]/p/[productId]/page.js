@@ -11,10 +11,54 @@ export default function ProductDetailsPage() {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
     const [activeImage, setActiveImage] = useState(0);
+    const [quantity, setQuantity] = useState(1);
+    const [cart, setCart] = useState([]);
 
     useEffect(() => {
-        if (slug && productId) fetchProductData();
+        if (!slug || !productId) return;
+
+        // Load cart for this business
+        const savedCart = localStorage.getItem(`cart_${slug}`);
+        if (savedCart) {
+            try {
+                setCart(JSON.parse(savedCart));
+            } catch (e) {
+                console.error("Error parsing cart:", e);
+            }
+        }
+
+        // Fetch product data
+        fetchProductData();
     }, [slug, productId]);
+
+    const addToCart = () => {
+        let currentCart = [...cart];
+        const existingItemIndex = currentCart.findIndex(item => item._id === product._id);
+
+        if (existingItemIndex > -1) {
+            currentCart[existingItemIndex].quantity += quantity;
+        } else {
+            currentCart.push({
+                _id: product._id,
+                name: product.name,
+                salePrice: product.salePrice,
+                image: product.images?.[0],
+                quantity: quantity,
+                businessId: business._id,
+                businessSlug: slug
+            });
+        }
+
+        setCart(currentCart);
+        localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
+
+        // Show success (optional, but good for UX)
+        // alert("Added to cart!");
+    };
+
+    const cartTotal = cart.reduce((total, item) => total + (item.salePrice * item.quantity), 0);
+    const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+
 
     const fetchProductData = async () => {
         try {
@@ -63,6 +107,15 @@ export default function ProductDetailsPage() {
                     <button className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center text-gray-800 shadow-lg shadow-black/5 active:scale-95 transition-all">
                         <Share2 size={20} />
                     </button>
+                    <Link
+                        href={`/b/${slug}/cart`}
+                        className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center text-gray-800 shadow-lg shadow-black/5 active:scale-95 transition-all relative"
+                    >
+                        <ShoppingBag size={20} />
+                        {cartCount > 0 && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">{cartCount}</span>
+                        )}
+                    </Link>
                 </div>
             </div>
 
@@ -182,14 +235,46 @@ export default function ProductDetailsPage() {
             </div>
 
             {/* Bottom Add to Cart Action */}
-            <div className="fixed bottom-0 inset-x-0 p-6 z-50">
-                <div className="max-w-md mx-auto flex items-center space-x-4">
-                    <div className="flex bg-gray-100 rounded-2xl p-1 shadow-inner">
-                        <button className="w-12 h-14 flex items-center justify-center text-gray-400 font-black text-lg">-</button>
-                        <div className="w-8 h-14 flex items-center justify-center text-gray-800 font-black">1</div>
-                        <button className="w-12 h-14 flex items-center justify-center text-gray-800 font-black text-lg">+</button>
+            <div className="fixed bottom-0 inset-x-0 p-6 z-50 flex flex-col space-y-4">
+                {/* Total Cart Bar (Only shows if cart has items) */}
+                {cartCount > 0 && (
+                    <div className="max-w-md mx-auto w-full bg-indigo-900 text-white px-6 py-4 rounded-3xl flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10 duration-500">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                                <ShoppingBag size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Your Cart</p>
+                                <p className="text-sm font-black uppercase">{cartCount} {cartCount === 1 ? 'Item' : 'Items'}</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Total Amount</p>
+                            <p className="text-xl font-black">₹{cartTotal}</p>
+                        </div>
                     </div>
-                    <button className="flex-1 bg-indigo-600 h-16 rounded-[1.5rem] flex items-center justify-center space-x-3 text-white font-black uppercase tracking-widest shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all">
+                )}
+
+                <div className="max-w-md mx-auto flex items-center space-x-4 w-full">
+                    <div className="flex bg-gray-100 rounded-2xl p-1 shadow-inner">
+                        <button
+                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            className="w-12 h-14 flex items-center justify-center text-gray-400 font-black text-lg active:scale-90 transition-all"
+                        >
+                            -
+                        </button>
+                        <div className="w-8 h-14 flex items-center justify-center text-gray-800 font-black">{quantity}</div>
+                        <button
+                            onClick={() => setQuantity(quantity + 1)}
+                            className="w-12 h-14 flex items-center justify-center text-gray-800 font-black text-lg active:scale-90 transition-all"
+                        >
+                            +
+                        </button>
+                    </div>
+                    <button
+                        onClick={addToCart}
+                        className="flex-1 bg-indigo-600 h-16 rounded-[1.5rem] flex items-center justify-center space-x-3 text-white font-black uppercase tracking-widest shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all"
+                    >
                         <ShoppingBag size={20} />
                         <span>Add to cart</span>
                     </button>
