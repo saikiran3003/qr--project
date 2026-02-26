@@ -54,6 +54,15 @@ export default function ProductDetailsPage() {
             }
 
             localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
+
+            // Scroll to cart bar after it renders
+            setTimeout(() => {
+                const cartBar = document.getElementById('cart-bar');
+                if (cartBar) {
+                    cartBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+
             return currentCart;
         });
     };
@@ -240,7 +249,7 @@ export default function ProductDetailsPage() {
             <div className="fixed bottom-0 inset-x-0 p-6 z-50 flex flex-col space-y-4">
                 {/* Total Cart Bar (Only shows if cart has items) */}
                 {cartCount > 0 && (
-                    <div className="max-w-md mx-auto w-full bg-indigo-950/95 backdrop-blur-md text-white px-4 py-3 md:px-5 md:py-3.5 rounded-[1.5rem] flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10 duration-500 border border-white/5 mb-2">
+                    <div id="cart-bar" className="mx-auto w-fit bg-indigo-950/95 backdrop-blur-md text-white px-4 py-3 md:px-5 md:py-3 rounded-[1.5rem] flex items-center justify-between gap-6 shadow-2xl animate-in slide-in-from-bottom-10 duration-500 border border-white/5 mb-2">
                         <div className="flex items-center space-x-3 md:space-x-4">
                             <div className="w-10 h-10 md:w-11 md:h-11 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
                                 <ShoppingBag size={18} className="text-white" />

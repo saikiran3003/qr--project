@@ -55,6 +55,15 @@ export default function CategoryDetailsPage() {
             }
 
             localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
+
+            // Scroll to cart bar after it renders
+            setTimeout(() => {
+                const cartBar = document.getElementById('cart-bar');
+                if (cartBar) {
+                    cartBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+
             return currentCart;
         });
     };
@@ -209,8 +218,8 @@ export default function CategoryDetailsPage() {
             </div>
             {/* Floating Cart Summary Bar */}
             {cartCount > 0 && (
-                <div className="fixed bottom-6 inset-x-6 z-50">
-                    <div className="max-w-md mx-auto w-full bg-indigo-950/95 backdrop-blur-md text-white px-4 py-3.5 md:px-6 md:py-4 rounded-[1.8rem] flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in slide-in-from-bottom-10 duration-500 border border-white/5">
+                <div id="cart-bar" className="fixed bottom-6 inset-x-0 z-50 px-6">
+                    <div className="mx-auto w-fit bg-indigo-950/95 backdrop-blur-md text-white px-4 py-3 md:px-6 md:py-4 rounded-[1.8rem] flex items-center justify-between gap-8 shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in slide-in-from-bottom-10 duration-500 border border-white/5">
                         <div className="flex items-center space-x-3 md:space-x-4">
                             <div className="w-11 h-11 md:w-12 md:h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner">
                                 <ShoppingBag size={20} className="text-white" />

@@ -253,7 +253,7 @@ export default function CartPage() {
                     <button
                         onClick={handleSendOrder}
                         disabled={sharing}
-                        className={`w-full max-w-md mx-auto h-16 rounded-[1.5rem] flex items-center justify-center space-x-3 text-white font-black uppercase tracking-widest shadow-xl active:scale-[0.98] transition-all ${sharing ? 'bg-indigo-400 cursor-not-allowed shadow-none' : 'bg-indigo-600 shadow-indigo-100'}`}
+                        className={`w-fit px-8 mx-auto h-16 rounded-[1.5rem] flex items-center justify-center space-x-3 text-white font-black uppercase tracking-widest shadow-xl active:scale-[0.98] transition-all ${sharing ? 'bg-indigo-400 cursor-not-allowed shadow-none' : 'bg-indigo-600 shadow-indigo-100'}`}
                     >
                         <span>{sharing ? 'sending...' : `Send Order • ₹${cartTotal}`}</span>
                     </button>
