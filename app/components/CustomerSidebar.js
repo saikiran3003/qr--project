@@ -24,26 +24,22 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
         setIsShareOpen(true);
     };
 
-    const handleGoogleReviewClick = async () => {
-        try {
-            // Log click to DB
-            await fetch('/api/public/share', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    businessId: business._id,
-                    platform: 'google_review'
-                })
-            });
-        } catch (error) {
-            console.error("Log review click error:", error);
-        }
+    const handleGoogleReviewClick = () => {
+        // Fire analytics logging in background
+        fetch('/api/public/share', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                businessId: business._id,
+                platform: 'google_review'
+            })
+        }).catch(err => console.error("Log error:", err));
 
-        // Open URL
-        if (business.googleReviewUrl) {
-            window.open(business.googleReviewUrl, "_blank");
+        // Open URL immediately to avoid browser popup blocker
+        if (business && business.googleReviewUrl) {
+            window.open(business.googleReviewUrl, "_blank", "noopener,noreferrer");
         } else {
-            alert("Google Review link not configured for this business.");
+            alert("Google Review link not configured for this business in Admin Panel.");
         }
     };
 

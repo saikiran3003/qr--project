@@ -10,19 +10,15 @@ export default function ShareModal({ isOpen, onClose, business }) {
     const shareUrl = typeof window !== "undefined" ? window.location.origin + "/b/" + business.slug : "";
     const shareText = `Check out the digital menu for ${business.name}!`;
 
-    const logShare = async (platform) => {
-        try {
-            await fetch('/api/public/share', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    businessId: business._id,
-                    platform: platform
-                })
-            });
-        } catch (error) {
-            console.error("Log share error:", error);
-        }
+    const logShare = (platform) => {
+        fetch('/api/public/share', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                businessId: business._id,
+                platform: platform
+            })
+        }).catch(err => console.error("Log error:", err));
     };
 
     const handleCopyLink = () => {
@@ -44,21 +40,21 @@ export default function ShareModal({ isOpen, onClose, business }) {
     const handleWhatsApp = () => {
         logShare('whatsapp');
         const url = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
-        window.open(url, "_blank");
+        window.open(url, "_blank", "noopener,noreferrer");
         onClose();
     };
 
     const handleFacebook = () => {
         logShare('facebook');
         const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-        window.open(url, "_blank");
+        window.open(url, "_blank", "noopener,noreferrer");
         onClose();
     };
 
     const handleTwitter = () => {
         logShare('twitter');
         const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-        window.open(url, "_blank");
+        window.open(url, "_blank", "noopener,noreferrer");
         onClose();
     };
 

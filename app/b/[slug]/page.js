@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { MapPin, Search, ChevronRight, ImageIcon, Info, Plus, ShoppingBag, Menu } from "lucide-react";
 import Link from "next/link";
-import CustomerSidebar from "../../components/CustomerSidebar";
+import CustomerSidebar from "@/app/components/CustomerSidebar";
 
 export default function BusinessLandingPage() {
     const { slug } = useParams();
