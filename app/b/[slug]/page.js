@@ -31,25 +31,30 @@ export default function BusinessLandingPage() {
     }, [slug]);
 
     const addToCart = (product) => {
-        let currentCart = [...cart];
-        const existingItemIndex = currentCart.findIndex(item => item._id === product._id);
+        setCart(prevCart => {
+            const currentCart = [...prevCart];
+            const existingItemIndex = currentCart.findIndex(item => item._id === product._id);
 
-        if (existingItemIndex > -1) {
-            currentCart[existingItemIndex].quantity += 1;
-        } else {
-            currentCart.push({
-                _id: product._id,
-                name: product.name,
-                salePrice: product.salePrice,
-                image: product.images?.[0],
-                quantity: 1,
-                businessId: business._id,
-                businessSlug: slug
-            });
-        }
+            if (existingItemIndex > -1) {
+                currentCart[existingItemIndex] = {
+                    ...currentCart[existingItemIndex],
+                    quantity: currentCart[existingItemIndex].quantity + 1
+                };
+            } else {
+                currentCart.push({
+                    _id: product._id,
+                    name: product.name,
+                    salePrice: product.salePrice,
+                    image: product.images?.[0],
+                    quantity: 1,
+                    businessId: data?.business?._id,
+                    businessSlug: slug
+                });
+            }
 
-        setCart(currentCart);
-        localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
+            localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
+            return currentCart;
+        });
     };
 
     const cartTotal = cart.reduce((total, item) => total + (item.salePrice * item.quantity), 0);
@@ -254,12 +259,13 @@ export default function BusinessLandingPage() {
                                                     </div>
                                                     <button
                                                         onClick={(e) => {
+                                                            e.stopPropagation();
                                                             e.preventDefault();
                                                             addToCart(prod);
                                                         }}
-                                                        className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all lg:absolute lg:bottom-4 lg:right-4 z-20"
+                                                        className="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white active:scale-95 transition-all lg:absolute lg:bottom-4 lg:right-4 z-40 shadow-sm border border-indigo-100/50"
                                                     >
-                                                        <Plus size={16} />
+                                                        <Plus size={22} strokeWidth={3} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -286,7 +292,7 @@ export default function BusinessLandingPage() {
 
             {/* Floating Cart Summary Bar */}
             {cartCount > 0 && (
-                <div className="fixed bottom-6 inset-x-6 z-50">
+                <div className=" bottom-6 inset-x-6 z-50">
                     <div className="max-w-md mx-auto w-full bg-indigo-900 text-white px-6 py-4 rounded-3xl flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10 duration-500">
                         <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">

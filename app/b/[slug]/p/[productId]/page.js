@@ -32,28 +32,30 @@ export default function ProductDetailsPage() {
     }, [slug, productId]);
 
     const addToCart = () => {
-        let currentCart = [...cart];
-        const existingItemIndex = currentCart.findIndex(item => item._id === product._id);
+        setCart(prevCart => {
+            const currentCart = [...prevCart];
+            const existingItemIndex = currentCart.findIndex(item => item._id === product._id);
 
-        if (existingItemIndex > -1) {
-            currentCart[existingItemIndex].quantity += quantity;
-        } else {
-            currentCart.push({
-                _id: product._id,
-                name: product.name,
-                salePrice: product.salePrice,
-                image: product.images?.[0],
-                quantity: quantity,
-                businessId: business._id,
-                businessSlug: slug
-            });
-        }
+            if (existingItemIndex > -1) {
+                currentCart[existingItemIndex] = {
+                    ...currentCart[existingItemIndex],
+                    quantity: currentCart[existingItemIndex].quantity + quantity
+                };
+            } else {
+                currentCart.push({
+                    _id: product._id,
+                    name: product.name,
+                    salePrice: product.salePrice,
+                    image: product.images?.[0],
+                    quantity: quantity,
+                    businessId: business._id,
+                    businessSlug: slug
+                });
+            }
 
-        setCart(currentCart);
-        localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
-
-        // Show success (optional, but good for UX)
-        // alert("Added to cart!");
+            localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
+            return currentCart;
+        });
     };
 
     const cartTotal = cart.reduce((total, item) => total + (item.salePrice * item.quantity), 0);
