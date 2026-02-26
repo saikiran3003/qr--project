@@ -240,20 +240,22 @@ export default function ProductDetailsPage() {
             <div className="fixed bottom-0 inset-x-0 p-6 z-50 flex flex-col space-y-4">
                 {/* Total Cart Bar (Only shows if cart has items) */}
                 {cartCount > 0 && (
-                    <div className="max-w-md mx-auto w-full bg-indigo-900 text-white px-6 py-4 rounded-3xl flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10 duration-500">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                                <ShoppingBag size={20} />
+                    <div className="max-w-md mx-auto w-full bg-indigo-950/95 backdrop-blur-md text-white px-4 py-3 md:px-5 md:py-3.5 rounded-[1.5rem] flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10 duration-500 border border-white/5 mb-2">
+                        <div className="flex items-center space-x-3 md:space-x-4">
+                            <div className="w-10 h-10 md:w-11 md:h-11 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
+                                <ShoppingBag size={18} className="text-white" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Your Cart</p>
-                                <p className="text-sm font-black uppercase">{cartCount} {cartCount === 1 ? 'Item' : 'Items'}</p>
+                                <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.15em] mb-0.5 leading-none">ITEMS: {cartCount}</p>
+                                <p className="text-lg md:text-xl font-black leading-none text-white tracking-tight">₹{cartTotal}</p>
                             </div>
                         </div>
-                        <div className="text-right">
-                            <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Total Amount</p>
-                            <p className="text-xl font-black">₹{cartTotal}</p>
-                        </div>
+                        <Link
+                            href={`/b/${slug}/cart`}
+                            className="bg-white text-indigo-950 px-4 py-2.5 md:px-6 md:py-3 rounded-[0.9rem] font-black uppercase text-[10px] md:text-xs tracking-widest active:scale-95 transition-all shadow-lg flex items-center justify-center whitespace-nowrap"
+                        >
+                            VIEW CART
+                        </Link>
                     </div>
                 )}
 

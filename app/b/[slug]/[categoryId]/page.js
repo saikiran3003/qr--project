@@ -210,21 +210,21 @@ export default function CategoryDetailsPage() {
             {/* Floating Cart Summary Bar */}
             {cartCount > 0 && (
                 <div className="fixed bottom-6 inset-x-6 z-50">
-                    <div className="max-w-md mx-auto w-full bg-indigo-900 text-white px-6 py-4 rounded-3xl flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10 duration-500">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
-                                <ShoppingBag size={20} />
+                    <div className="max-w-md mx-auto w-full bg-indigo-950/95 backdrop-blur-md text-white px-4 py-3.5 md:px-6 md:py-4 rounded-[1.8rem] flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in slide-in-from-bottom-10 duration-500 border border-white/5">
+                        <div className="flex items-center space-x-3 md:space-x-4">
+                            <div className="w-11 h-11 md:w-12 md:h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner">
+                                <ShoppingBag size={20} className="text-white" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest leading-none mb-1">Items: {cartCount}</p>
-                                <p className="text-xl font-black">₹{cartTotal}</p>
+                                <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.15em] mb-0.5">ITEMS: {cartCount}</p>
+                                <p className="text-xl md:text-2xl font-black tracking-tight leading-none text-white">₹{cartTotal}</p>
                             </div>
                         </div>
                         <Link
                             href={`/b/${slug}/cart`}
-                            className="bg-white text-indigo-900 px-6 py-3 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all"
+                            className="bg-white text-indigo-950 px-4 py-2.5 md:px-7 md:py-4 rounded-[1.1rem] font-black uppercase text-[10px] md:text-xs tracking-widest active:scale-95 transition-all shadow-xl hover:bg-gray-50 flex items-center justify-center whitespace-nowrap"
                         >
-                            View Cart
+                            VIEW CART
                         </Link>
                     </div>
                 </div>
