@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { X, MessageSquare, Share2, Star, Phone, MapPin, Mail } from "lucide-react";
 import FeedbackModal from "./FeedbackModal";
+import ShareModal from "./ShareModal";
 
 export default function CustomerSidebar({ isOpen, onClose, business }) {
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+    const [isShareOpen, setIsShareOpen] = useState(false);
 
     if (!isOpen) return null;
 
@@ -12,17 +14,7 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
     };
 
     const handleShareClick = () => {
-        if (navigator.share) {
-            navigator.share({
-                title: business.name,
-                text: `Check out our digital menu at ${business.name}!`,
-                url: window.location.href
-            }).catch(console.error);
-        } else {
-            // Fallback for desktop: copy link
-            navigator.clipboard.writeText(window.location.href);
-            alert("Menu link copied to clipboard!");
-        }
+        setIsShareOpen(true);
     };
 
     return (
@@ -30,6 +22,12 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
             <FeedbackModal
                 isOpen={isFeedbackOpen}
                 onClose={() => setIsFeedbackOpen(false)}
+                business={business}
+            />
+
+            <ShareModal
+                isOpen={isShareOpen}
+                onClose={() => setIsShareOpen(false)}
                 business={business}
             />
 
