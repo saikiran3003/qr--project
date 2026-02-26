@@ -99,7 +99,7 @@ export default function CartPage() {
                                             </div>
                                             <button
                                                 onClick={() => removeItem(item._id)}
-                                                className="text-gray-300 hover:text-red-500 transition-colors p-2"
+                                                className="text-black-300 hover:text-red-500 transition-colors p-2"
                                             >
                                                 <Trash2 size={18} />
                                             </button>
