@@ -141,12 +141,15 @@ export default function BusinessLandingPage() {
     };
 
     return (
-        <div className="min-h-[100dvh] bg-white pb-12">
-            <CustomerSidebar
-                isOpen={isMenuOpen}
-                onClose={() => setIsMenuOpen(false)}
-                business={business}
-            />
+        <div className="min-h-[100dvh] bg-white pb-12 relative">
+            {/* Sidebar */}
+            {business && (
+                <CustomerSidebar
+                    isOpen={isMenuOpen}
+                    onClose={() => setIsMenuOpen(false)}
+                    business={business}
+                />
+            )}
             {/* Header / Hero */}
             <div className="relative h-64 bg-indigo-600 overflow-hidden">
                 {/* Background Pattern/Gradient */}

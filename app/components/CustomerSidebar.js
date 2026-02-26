@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { X, MessageSquare, Share2, Star, Phone, MapPin, Mail } from "lucide-react";
 import FeedbackModal from "./FeedbackModal";
@@ -7,7 +9,12 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
 
-    if (!isOpen) return null;
+    // Prevent crash if business data hasn't loaded yet
+    if (!business) return null;
+
+    // Safety for sidebar opening
+    // We keep the component mounted for animations and state but only render content based on business existence
+    if (!isOpen && !isFeedbackOpen && !isShareOpen) return null;
 
     const handleFeedbackClick = () => {
         setIsFeedbackOpen(true);

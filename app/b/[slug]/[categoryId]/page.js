@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Search, ChevronLeft, ShoppingBag, Plus, ImageIcon, Info, Menu } from "lucide-react";
 import Link from "next/link";
-import CustomerSidebar from "../../components/CustomerSidebar";
+import CustomerSidebar from "../../../components/CustomerSidebar";
 
 export default function CategoryDetailsPage() {
     const { slug, categoryId } = useParams();
