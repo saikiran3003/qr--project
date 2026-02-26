@@ -6,11 +6,7 @@ import Sidebar from "../../components/Sidebar";
 import MobileHeader from "../../components/MobileHeader";
 import {
     FolderTree,
-    Eye,
-    Settings,
-    CheckCircle2,
-    Server,
-    ShieldCheck
+    Eye
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -111,8 +107,8 @@ export default function DashboardPage() {
                             )}
                         </section>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <section className="lg:col-span-2 space-y-6">
+                        <div className="grid grid-cols-1 gap-6">
+                            <section className="space-y-6">
                                 <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
                                     <h2 className="text-xl font-bold text-gray-800 mb-6">Manage Categories</h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -130,42 +126,6 @@ export default function DashboardPage() {
                                         ) : (
                                             <p className="text-gray-400 text-sm font-bold uppercase tracking-widest text-center col-span-full py-4">No categories yet</p>
                                         )}
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section>
-                                <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 h-full">
-                                    <h2 className="text-xl font-bold text-gray-800 mb-6">System Status</h2>
-                                    <div className="space-y-6">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-3 text-gray-600">
-                                                <Server size={20} className="text-gray-400" />
-                                                <span className="font-medium">Database Status</span>
-                                            </div>
-                                            <span className="flex items-center space-x-1.5 bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold border border-green-100 text-center">
-                                                <CheckCircle2 size={12} />
-                                                <span>Connected</span>
-                                            </span>
-                                        </div>
-
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-3 text-gray-600">
-                                                <ShieldCheck size={20} className="text-gray-400" />
-                                                <span className="font-medium">Next.js Version</span>
-                                            </div>
-                                            <span className="text-gray-800 font-bold">14+</span>
-                                        </div>
-
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-3 text-gray-600">
-                                                <div className="w-5 h-5 flex items-center justify-center">
-                                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
-                                                </div>
-                                                <span className="font-medium">Security</span>
-                                            </div>
-                                            <span className="text-blue-600 font-bold text-sm bg-blue-50 px-2 py-1 rounded-md">JWT Active</span>
-                                        </div>
                                     </div>
                                 </div>
                             </section>
