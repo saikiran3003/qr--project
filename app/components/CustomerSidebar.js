@@ -1,13 +1,38 @@
-"use client";
-
-import React from "react";
+import React, { useState } from "react";
 import { X, MessageSquare, Share2, Star, Phone, MapPin, Mail } from "lucide-react";
+import FeedbackModal from "./FeedbackModal";
 
 export default function CustomerSidebar({ isOpen, onClose, business }) {
+    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+
     if (!isOpen) return null;
+
+    const handleFeedbackClick = () => {
+        setIsFeedbackOpen(true);
+    };
+
+    const handleShareClick = () => {
+        if (navigator.share) {
+            navigator.share({
+                title: business.name,
+                text: `Check out our digital menu at ${business.name}!`,
+                url: window.location.href
+            }).catch(console.error);
+        } else {
+            // Fallback for desktop: copy link
+            navigator.clipboard.writeText(window.location.href);
+            alert("Menu link copied to clipboard!");
+        }
+    };
 
     return (
         <>
+            <FeedbackModal
+                isOpen={isFeedbackOpen}
+                onClose={() => setIsFeedbackOpen(false)}
+                business={business}
+            />
+
             {/* Overlay */}
             <div
                 className="fixed inset-0 bg-black/50 z-[100] transition-opacity duration-300"
@@ -28,26 +53,37 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
                 {/* Main Menu Items */}
                 <div className="p-4 pt-6">
                     <div className="divide-y divide-gray-100">
-                        <button className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group">
+                        <button
+                            onClick={handleFeedbackClick}
+                            className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group"
+                        >
                             <div className="w-10 h-10 flex items-center justify-center text-gray-400 group-hover:text-indigo-600">
                                 <MessageSquare size={20} />
                             </div>
                             <span className="font-bold text-gray-700">Feedback</span>
                         </button>
 
-                        <button className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group">
+                        <button
+                            onClick={handleShareClick}
+                            className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group"
+                        >
                             <div className="w-10 h-10 flex items-center justify-center text-gray-400 group-hover:text-indigo-600">
                                 <Share2 size={20} />
                             </div>
                             <span className="font-bold text-gray-700">Share eMenu</span>
                         </button>
 
-                        <button className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group">
+                        <a
+                            href={business.googleReviewUrl || "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full flex items-center space-x-4 py-4 hover:bg-gray-50 transition-colors group"
+                        >
                             <div className="w-10 h-10 flex items-center justify-center text-gray-400 group-hover:text-indigo-600">
-                                <MessageSquare size={20} />
+                                <Star size={20} />
                             </div>
                             <span className="font-bold text-gray-700">Google Review</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
 

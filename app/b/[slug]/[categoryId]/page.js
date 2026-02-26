@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Search, ChevronLeft, ShoppingBag, Plus, ImageIcon, Info } from "lucide-react";
+import { Search, ChevronLeft, ShoppingBag, Plus, ImageIcon, Info, Menu } from "lucide-react";
 import Link from "next/link";
+import CustomerSidebar from "../../components/CustomerSidebar";
 
 export default function CategoryDetailsPage() {
     const { slug, categoryId } = useParams();
@@ -13,6 +14,7 @@ export default function CategoryDetailsPage() {
     const [activeSubCat, setActiveSubCat] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
     const [cart, setCart] = useState([]);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const scrollContainerRef = useRef(null);
 
     useEffect(() => {
@@ -106,12 +108,25 @@ export default function CategoryDetailsPage() {
 
     return (
         <div className="min-h-[100dvh] bg-gray-50 pb-24">
+            <CustomerSidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                business={business}
+            />
             {/* Header */}
             <header className="bg-white px-6 py-6 sticky top-0 z-40 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                    <Link href={`/b/${slug}`} className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-800 active:scale-95 transition-all">
-                        <ChevronLeft size={24} />
-                    </Link>
+                    <div className="flex items-center space-x-2">
+                        <Link href={`/b/${slug}`} className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-800 active:scale-95 transition-all">
+                            <ChevronLeft size={24} />
+                        </Link>
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-800 active:scale-95 transition-all"
+                        >
+                            <Menu size={24} />
+                        </button>
+                    </div>
                     <div>
                         <h1 className="text-xl font-black text-gray-800 tracking-tight uppercase">{category.name}</h1>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{business.name}</p>

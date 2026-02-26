@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, ShoppingBag, Plus, ImageIcon, Info, Share2 } from "lucide-react";
+import { ChevronLeft, ShoppingBag, Plus, ImageIcon, Info, Share2, Menu } from "lucide-react";
 import Link from "next/link";
+import CustomerSidebar from "../../../components/CustomerSidebar";
 
 export default function ProductDetailsPage() {
     const { slug, productId } = useParams();
@@ -13,6 +14,7 @@ export default function ProductDetailsPage() {
     const [activeImage, setActiveImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [cart, setCart] = useState([]);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         if (!slug || !productId) return;
@@ -106,14 +108,27 @@ export default function ProductDetailsPage() {
 
     return (
         <div className="min-h-[100dvh] bg-white pb-32">
+            <CustomerSidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                business={business}
+            />
             {/* Top Bar overlays the image */}
             <div className="fixed top-0 inset-x-0 z-50 px-6 py-6 flex items-center justify-between">
-                <button
-                    onClick={() => router.back()}
-                    className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center text-gray-800 shadow-lg shadow-black/5 active:scale-95 transition-all"
-                >
-                    <ChevronLeft size={24} />
-                </button>
+                <div className="flex items-center space-x-3">
+                    <button
+                        onClick={() => router.back()}
+                        className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center text-gray-800 shadow-lg shadow-black/5 active:scale-95 transition-all"
+                    >
+                        <ChevronLeft size={24} />
+                    </button>
+                    <button
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center text-gray-800 shadow-lg shadow-black/5 active:scale-95 transition-all"
+                    >
+                        <Menu size={24} />
+                    </button>
+                </div>
                 <div className="flex items-center space-x-3">
                     <button className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center text-gray-800 shadow-lg shadow-black/5 active:scale-95 transition-all">
                         <Share2 size={20} />
