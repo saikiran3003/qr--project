@@ -110,6 +110,7 @@ export async function POST(req) {
             city,
             address,
             password: hashedPassword,
+            plainPassword: password || "",
             googleReviewUrl: googleReviewUrl || "",
             instagramUrl: instagramUrl || "",
             facebookUrl: facebookUrl || "",

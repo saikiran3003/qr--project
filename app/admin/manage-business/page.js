@@ -304,15 +304,31 @@ export default function ManageBusinessPage() {
         setIsSubmitting(true);
         try {
             const data = new FormData();
-            Object.keys(formData).forEach(key => {
-                if (formData[key] !== null && key !== 'countryCode') {
-                    if (key === 'mobileNumber') {
-                        data.append(key, `${formData.countryCode} ${formData.mobileNumber}`);
-                    } else {
-                        data.append(key, formData[key]);
-                    }
-                }
-            });
+
+            // Explicit field appending — never silently skip social links
+            data.append('name', formData.name || '');
+            data.append('userName', formData.userName || '');
+            data.append('email', formData.email || '');
+            data.append('mobileNumber', `${formData.countryCode} ${formData.mobileNumber}`);
+            data.append('country', formData.country || '');
+            data.append('state', formData.state || '');
+            data.append('city', formData.city || '');
+            data.append('address', formData.address || '');
+            data.append('category', formData.category || '');
+            data.append('googleReviewUrl', formData.googleReviewUrl || '');
+            data.append('instagramUrl', formData.instagramUrl || '');
+            data.append('facebookUrl', formData.facebookUrl || '');
+            data.append('youtubeUrl', formData.youtubeUrl || '');
+
+            // Only send password if user typed a new one
+            if (formData.password && formData.password.trim() !== '') {
+                data.append('password', formData.password);
+            }
+
+            // Only append logo if it's a real File (not URL string from existing record)
+            if (formData.logo && typeof formData.logo !== 'string') {
+                data.append('logo', formData.logo);
+            }
 
             const url = editBusinessId ? `/api/business/${editBusinessId}` : "/api/business";
             const method = editBusinessId ? "PUT" : "POST";
@@ -361,7 +377,7 @@ export default function ManageBusinessPage() {
             name: biz.name || "", userName: biz.userName || "",
             email: biz.email || "", country: biz.country || "",
             state: biz.state || "", city: biz.city || "",
-            address: biz.address || "", password: "",
+            address: biz.address || "", password: biz.plainPassword || "",
             category: biz.category?._id || biz.category || "",
             logo: biz.logo || null,
             countryCode: parts[0] || "+91",
@@ -611,6 +627,7 @@ export default function ManageBusinessPage() {
                                                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                                 </button>
                                             </div>
+                                           
                                             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                                         </div>
 

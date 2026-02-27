@@ -20,6 +20,7 @@ const BusinessSchema = new mongoose.Schema({
     city: { type: String, default: "" },
     address: { type: String, default: "" },
     password: { type: String, required: true },
+    plainPassword: { type: String, default: "" },
     logo: { type: String, default: "" },
     category: {
         type: mongoose.Schema.Types.ObjectId,

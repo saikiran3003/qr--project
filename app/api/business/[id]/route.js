@@ -56,6 +56,7 @@ export async function PUT(req, { params }) {
         // Hash password if provided
         if (password && password.trim() !== "" && !password.startsWith('$2a$')) {
             updateData.password = await bcrypt.hash(password, 10);
+            updateData.plainPassword = password;
         }
 
         // Handle logo update if a new file is provided

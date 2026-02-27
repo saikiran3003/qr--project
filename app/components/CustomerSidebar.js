@@ -12,7 +12,6 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
     // Prevent crash if business data hasn't loaded yet
     if (!business) return null;
 
-    // Safety for sidebar opening
     // We keep the component mounted for animations and state but only render content based on business existence
     if (!isOpen && !isFeedbackOpen && !isShareOpen) return null;
 
@@ -63,8 +62,8 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
                 onClick={onClose}
             />
 
-            {/* Sidebar */}
-            <div className={`fixed top-0 left-0 h-full w-[80%] max-w-[320px] bg-white z-[101] shadow-2xl transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
+            {/* Sidebar — full scroll so all content accessible at any zoom */}
+            <div className={`fixed top-0 left-0 h-full w-[80%] max-w-[320px] bg-white z-[101] shadow-2xl transform transition-transform duration-300 ease-in-out overflow-y-auto ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
 
                 {/* Header */}
                 <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 flex items-center justify-between text-white">
@@ -148,7 +147,7 @@ export default function CustomerSidebar({ isOpen, onClose, business }) {
                 </div>
 
                 {/* Contact Info (Bottom) */}
-                <div className="absolute bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 pb-10 space-y-1">
+                <div className="bg-white border-t border-gray-100 p-4 pb-10 space-y-1">
                     {business.mobileNumber && (
                         <a href={`tel:${business.mobileNumber}`} className="flex items-center space-x-4 p-4 text-gray-500 hover:text-indigo-600 transition-colors group">
                             <div className="text-gray-400 group-hover:text-indigo-600 transition-colors">

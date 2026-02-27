@@ -27,11 +27,11 @@ export async function GET(req, { params }) {
                 { slug: decodedSlug },
                 { slug: hyphenatedSlug }
             ]
-        }).select('-password');
+        }).select('-password -plainPassword');
 
         // 2. Try matching by ID (In case user provides _id instead of slug)
         if (!business && mongoose.Types.ObjectId.isValid(decodedSlug)) {
-            business = await Business.findById(decodedSlug).select('-password');
+            business = await Business.findById(decodedSlug).select('-password -plainPassword');
         }
 
         // 3. Try case-insensitive matching (Most flexible)
@@ -42,7 +42,7 @@ export async function GET(req, { params }) {
                     { slug: { $regex: new RegExp(`^${decodedSlug}$`, "i") } },
                     { name: { $regex: new RegExp(`^${decodedSlug}$`, "i") } }
                 ]
-            }).select('-password');
+            }).select('-password -plainPassword');
         }
 
         if (!business) {
