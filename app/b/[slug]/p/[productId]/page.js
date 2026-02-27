@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, ShoppingBag, Plus, ImageIcon, Info, Share2, Menu } from "lucide-react";
 import Link from "next/link";
 import CustomerSidebar from "@/app/components/CustomerSidebar";
+import AdsBanner from "@/app/components/AdsBanner";
 
 export default function ProductDetailsPage() {
     const { slug, productId } = useParams();
@@ -107,7 +108,11 @@ export default function ProductDetailsPage() {
     const { business, product, relatedProducts } = data;
 
     return (
+
         <div className="min-h-[100dvh] bg-white pb-32">
+            {/* Ads Banner — auto-scroll, shows only if ads are added in admin panel */}
+            <AdsBanner slug={slug} />
+
             <CustomerSidebar
                 isOpen={isSidebarOpen}
                 onClose={() => setIsSidebarOpen(false)}

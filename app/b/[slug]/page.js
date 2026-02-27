@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { MapPin, Search, ChevronRight, ImageIcon, Info, Plus, ShoppingBag, Menu } from "lucide-react";
 import Link from "next/link";
 import CustomerSidebar from "@/app/components/CustomerSidebar";
+import AdsBanner from "@/app/components/AdsBanner";
 
 export default function BusinessLandingPage() {
     const { slug } = useParams();
@@ -56,7 +57,6 @@ export default function BusinessLandingPage() {
 
             localStorage.setItem(`cart_${slug}`, JSON.stringify(currentCart));
 
-            // Scroll to cart bar after it renders
             setTimeout(() => {
                 const cartBar = document.getElementById('cart-bar');
                 if (cartBar) {
@@ -71,10 +71,8 @@ export default function BusinessLandingPage() {
     const cartTotal = cart.reduce((total, item) => total + (item.salePrice * item.quantity), 0);
     const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
-
     const fetchBusinessData = async () => {
         try {
-            console.log("Fetching data for slug:", slug);
             const res = await fetch(`/api/public/business/${encodeURIComponent(slug)}`);
             const result = await res.json();
             if (res.ok) {
@@ -120,7 +118,6 @@ export default function BusinessLandingPage() {
 
     const { business, categories = [], products = [] } = data || {};
 
-    // Group products by category
     const groupedProducts = categories.reduce((acc, cat) => {
         const catProducts = (products || []).filter(p => (p.category?._id || p.category) === cat._id);
         if (catProducts.length > 0) {
@@ -129,20 +126,16 @@ export default function BusinessLandingPage() {
         return acc;
     }, {});
 
-    // Search logic: matches product name OR category name
     const matchesSearch = (product, category) => {
         const search = searchTerm.toLowerCase().trim();
         if (!search) return true;
-
         const productNameMatch = product.name.toLowerCase().includes(search);
         const categoryNameMatch = category.name.toLowerCase().includes(search);
-
         return productNameMatch || categoryNameMatch;
     };
 
     return (
         <div className="min-h-[100dvh] bg-white pb-12 relative">
-            {/* Sidebar */}
             {business && (
                 <CustomerSidebar
                     isOpen={isMenuOpen}
@@ -150,6 +143,10 @@ export default function BusinessLandingPage() {
                     business={business}
                 />
             )}
+
+            {/* Ads Banner — auto-scroll, shows only if ads are added in admin panel */}
+            <AdsBanner slug={slug} />
+
             {/* Header / Hero */}
             <div className="relative h-64 bg-indigo-600 overflow-hidden">
                 {/* Background Pattern/Gradient */}
@@ -328,7 +325,7 @@ export default function BusinessLandingPage() {
 
             {/* Floating Cart Summary Bar */}
             {cartCount > 0 && (
-                <div id="cart-bar" className=" bottom-6 inset-x-0 z-50 px-6">
+                <div id="cart-bar" className="fixed bottom-6 inset-x-0 z-50 px-6">
                     <div className="mx-auto w-fit bg-indigo-950/95 backdrop-blur-md text-white px-4 py-3 md:px-6 md:py-4 rounded-[1.8rem] flex items-center justify-between gap-8 shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in slide-in-from-bottom-10 duration-500 border border-white/5">
                         <div className="flex items-center space-x-3 md:space-x-4">
                             <div className="w-11 h-11 md:w-12 md:h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner">

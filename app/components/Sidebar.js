@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, List, LogOut, ShieldCheck, Plus } from "lucide-react";
+import { LayoutDashboard, List, LogOut, ShieldCheck, Plus, Megaphone } from "lucide-react";
 import Swal from "sweetalert2";
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -58,6 +58,7 @@ export default function Sidebar({ isOpen, onClose }) {
         { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
         { label: "Categories", href: "/admin/categories", icon: List },
         { label: "Manage Business", href: "/admin/manage-business", icon: ShieldCheck },
+        { label: "Manage Ads", href: "/admin/ads", icon: Megaphone },
     ];
 
     return (

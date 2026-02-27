@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Search, ChevronLeft, ShoppingBag, Plus, ImageIcon, Info, Menu } from "lucide-react";
 import Link from "next/link";
 import CustomerSidebar from "@/app/components/CustomerSidebar";
+import AdsBanner from "@/app/components/AdsBanner";
 
 export default function CategoryDetailsPage() {
     const { slug, categoryId } = useParams();
@@ -113,6 +114,10 @@ export default function CategoryDetailsPage() {
                 onClose={() => setIsSidebarOpen(false)}
                 business={business}
             />
+
+            {/* Ads Banner — auto-scroll, shows only if ads are added in admin panel */}
+            <AdsBanner slug={slug} />
+
             {/* Header */}
             <header className="bg-white px-6 py-6 sticky top-0 z-40 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
