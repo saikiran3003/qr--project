@@ -131,7 +131,7 @@ export default function ManageAdsPage() {
                                 </button>
                                 <div>
                                     <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Manage Ads</h1>
-                                    <p className="text-g-400 font-bold mt-1 text-sm uppercase tracking-widest">Update advertisement banners for business pages</p>
+                                    <p className="text-gray-400 font-bold mt-1 text-sm uppercase tracking-widest">Update advertisement banners for business pages</p>
                                 </div>
                             </div>
                         </header>
@@ -139,7 +139,7 @@ export default function ManageAdsPage() {
                         {/* Search & Selector Row */}
                         <div className="mb-6 flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-4">
                             <div className="relative flex-1">
-                                <label className="block text-xs font-black text-black-400 uppercase tracking-widest mb-2 ml-1">Select Business to Manage Ads</label>
+                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Select Business to Manage Ads</label>
                                 <div className="relative">
                                     <select
                                         value={selectedBusiness}
@@ -192,8 +192,8 @@ export default function ManageAdsPage() {
                                                     <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                                         <ImageIcon size={32} />
                                                     </div>
-                                                    <p className="text-black-500 font-bold">Drop your ad banner here</p>
-                                                    <p className="text-black-400 text-xs mt-2 uppercase tracking-widest font-black">JPG, PNG, GIF • 1200x400 Recommended</p>
+                                                    <p className="text-gray-500 font-bold">Drop your ad banner here</p>
+                                                    <p className="text-gray-400 text-xs mt-2 uppercase tracking-widest font-black">JPG, PNG, GIF • 1200x400 Recommended</p>
                                                 </div>
                                             )}
                                         </div>
