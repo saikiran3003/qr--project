@@ -17,6 +17,7 @@ export default function ManageAdsPage() {
     const [loadingAds, setLoadingAds] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);
+    const [link, setLink] = useState("");
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -72,6 +73,7 @@ export default function ManageAdsPage() {
             formData.append("businessId", selectedBusiness);
             formData.append("image", imageFile);
             formData.append("order", ads.length);
+            formData.append("link", link);
 
             const res = await fetch("/api/business-ads", { method: "POST", body: formData });
             const result = await res.json();
@@ -79,6 +81,7 @@ export default function ManageAdsPage() {
                 Swal.fire({ title: "Ad Uploaded!", icon: "success", timer: 1500, showConfirmButton: false });
                 setImageFile(null);
                 setImagePreview(null);
+                setLink("");
                 if (fileInputRef.current) fileInputRef.current.value = "";
                 fetchAds(selectedBusiness);
             } else {
@@ -131,7 +134,7 @@ export default function ManageAdsPage() {
                                 </button>
                                 <div>
                                     <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Manage Ads</h1>
-                                    <p className="text-gray-400 font-bold mt-1 text-sm uppercase tracking-widest">Update advertisement banners for business pages</p>
+                                    <p className="text-black-400 font-bold mt-1 text-sm uppercase tracking-widest">Update advertisement banners for business pages</p>
                                 </div>
                             </div>
                         </header>
@@ -139,12 +142,12 @@ export default function ManageAdsPage() {
                         {/* Search & Selector Row */}
                         <div className="mb-6 flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-4">
                             <div className="relative flex-1">
-                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Select Business to Manage Ads</label>
+                                <label className="block text-xs font-black text-black-400 uppercase tracking-widest mb-2 ml-1">Select Business to Manage Ads</label>
                                 <div className="relative">
                                     <select
                                         value={selectedBusiness}
                                         onChange={(e) => setSelectedBusiness(e.target.value)}
-                                        className="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-gray-600 font-bold cursor-pointer appearance-none shadow-sm"
+                                        className="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all text-gray-600 font-bold cursor-pointer appearance-none shadow-sm"
                                     >
                                         <option value="">-- Choose a business --</option>
                                         {businesses.map(b => (
@@ -192,8 +195,8 @@ export default function ManageAdsPage() {
                                                     <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                                         <ImageIcon size={32} />
                                                     </div>
-                                                    <p className="text-gray-500 font-bold">Drop your ad banner here</p>
-                                                    <p className="text-gray-400 text-xs mt-2 uppercase tracking-widest font-black">JPG, PNG, GIF • 1200x400 Recommended</p>
+                                                    <p className="text-black-500 font-bold">Drop your ad banner here</p>
+                                                    <p className="text-black-400 text-xs mt-2 uppercase tracking-widest font-black">JPG, PNG, GIF • 1200x400 Recommended</p>
                                                 </div>
                                             )}
                                         </div>
@@ -204,12 +207,24 @@ export default function ManageAdsPage() {
                                             onChange={handleFileChange}
                                             className="hidden"
                                         />
+
+                                        {/* Link input */}
+                                        <div className="mt-4">
+                                            <label className="block text-xs font-black text-black-400 uppercase tracking-widest mb-2 ml-1">Redirect Link (Optional)</label>
+                                            <input
+                                                type="url"
+                                                value={link}
+                                                onChange={(e) => setLink(e.target.value)}
+                                                placeholder="https://example.com"
+                                                className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all text-gray-600 font-bold shadow-inner"
+                                            />
+                                        </div>
                                     </div>
 
                                     <button
                                         onClick={handleUpload}
                                         disabled={uploading || !selectedBusiness || !imageFile}
-                                        className="w-full h-16 bg-blue-600 text-white rounded-[1.5rem] font-black uppercase tracking-widest text-sm flex items-center justify-center space-x-3 hover:bg-white hover:text-black border-2 border-transparent hover:border-blue-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-xl shadow-blue-50"
+                                        className="w-full h-16 bg-blue-600 text-black rounded-[1.5rem] font-black uppercase tracking-widest text-black flex items-center justify-center space-x-3 fucus:ring-black-500/20 hover:bg-gray-200 transition-all disabled:opacity-80 disabled:cursor-not-allowed  shadow-blue-50"
                                     >
                                         {uploading ? (
                                             <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
@@ -242,10 +257,10 @@ export default function ManageAdsPage() {
 
                                     {!selectedBusiness ? (
                                         <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50/50 rounded-[2rem] border border-dashed border-gray-200">
-                                            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 text-gray-200 shadow-sm">
+                                            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 text-blue-600 shadow-sm">
                                                 <ImageIcon size={32} />
                                             </div>
-                                            <p className="text-gray-400 font-bold text-sm uppercase tracking-widest">Select a business above</p>
+                                            <p className="text-black-400 font-bold text-sm uppercase tracking-widest">Select a business above</p>
                                         </div>
                                     ) : loadingAds ? (
                                         <div className="flex flex-col items-center justify-center py-20">
@@ -284,6 +299,14 @@ export default function ManageAdsPage() {
                                                             Banner #{i + 1}
                                                         </div>
                                                     </div>
+
+                                                    {ad.link && (
+                                                        <div className="absolute bottom-4 left-4 right-16">
+                                                            <div className="bg-white/90 backdrop-blur-md text-blue-600 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm border border-black/5 truncate">
+                                                                Link: {ad.link}
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>

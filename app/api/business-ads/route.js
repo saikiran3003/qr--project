@@ -26,6 +26,7 @@ export async function POST(req) {
         const businessId = formData.get('businessId');
         const imageFile = formData.get('image');
         const order = formData.get('order') || 0;
+        const link = formData.get('link') || "";
 
         if (!businessId || !imageFile) {
             return NextResponse.json({ error: 'businessId and image are required' }, { status: 400 });
@@ -49,6 +50,7 @@ export async function POST(req) {
             business: businessId,
             imageUrl: uploadResponse.secure_url,
             order: Number(order),
+            link: link,
         });
 
         return NextResponse.json(ad, { status: 201 });

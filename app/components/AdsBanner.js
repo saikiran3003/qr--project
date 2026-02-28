@@ -36,22 +36,44 @@ export default function AdsBanner({ slug }) {
                 className="flex transition-transform duration-700 ease-in-out h-full"
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-                {ads.map((ad, i) => (
-                    <div key={ad._id} className="min-w-full h-full flex-shrink-0 relative flex justify-center items-center">
-                        {/* Atmospheric Blur Background to fill width */}
-                        <img
-                            src={ad.imageUrl}
-                            alt=""
-                            className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-50 scale-125"
-                        />
-                        {/* Foreground Image - No Cutting (As It Is) */}
-                        <img
-                            src={ad.imageUrl}
-                            alt={`Ad ${i + 1}`}
-                            className="relative w-full h-full object-contain z-10 mx-auto"
-                        />
-                    </div>
-                ))}
+                {ads.map((ad, i) => {
+                    const content = (
+                        <div className="w-full h-full relative flex justify-center items-center">
+                            {/* Atmospheric Blur Background to fill width */}
+                            <img
+                                src={ad.imageUrl}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-50 scale-125"
+                            />
+                            {/* Foreground Image - No Cutting (As It Is) */}
+                            <img
+                                src={ad.imageUrl}
+                                alt={`Ad ${i + 1}`}
+                                className={`relative w-full h-full object-contain z-10 mx-auto ${ad.link ? 'cursor-pointer' : ''}`}
+                            />
+                        </div>
+                    );
+
+                    if (ad.link) {
+                        return (
+                            <a
+                                key={ad._id}
+                                href={ad.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="min-w-full h-full flex-shrink-0 block"
+                            >
+                                {content}
+                            </a>
+                        );
+                    }
+
+                    return (
+                        <div key={ad._id} className="min-w-full h-full flex-shrink-0">
+                            {content}
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Dot indicators */}
